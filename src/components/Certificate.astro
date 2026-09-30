@@ -1,6 +1,6 @@
 ---
 import Logo from "./Logo.astro";
-import { contacts } from "../data/contacts";
+import { contacts, external } from "../data/contacts";
 ---
 
 <article class="certificate on-black reveal" aria-labelledby="certificate-title">
@@ -11,7 +11,7 @@ import { contacts } from "../data/contacts";
     Будь-яка послуга барбершопу — від стрижки до догляду за бородою. Діє 4 місяці з моменту придбання.
   </p>
   <div class="mt-auto pt-8">
-    <a href={contacts.phoneHref} class="btn btn-light btn-lg">Замовити сертифікат</a>
+    <a href={contacts.instagramUrl} {...external} class="btn btn-light btn-lg">Замовити сертифікат</a>
   </div>
 </article>
 
