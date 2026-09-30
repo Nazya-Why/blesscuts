@@ -3,6 +3,7 @@ import { Font } from "astro:assets";
 import "../styles/global.css";
 import { contacts } from "../data/contacts";
 import { priceSpan } from "../data/services";
+import { withBase } from "../lib/url";
 
 interface Props {
   title: string;
@@ -12,17 +13,18 @@ interface Props {
 const { title, description } = Astro.props;
 const site = Astro.site ?? new URL(Astro.url.origin);
 const canonical = new URL(Astro.url.pathname, site).href;
-const ogImage = new URL("/og-image.jpg", site).href;
+const home = new URL(withBase(), site).href;
+const ogImage = new URL(withBase("og-image.jpg"), site).href;
 const [priceMin, priceMax] = priceSpan();
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "BarberShop",
-  "@id": `${new URL("/", site).href}#barbershop`,
+  "@id": `${home}#barbershop`,
   name: contacts.name,
-  url: new URL("/", site).href,
+  url: home,
   image: ogImage,
-  logo: new URL("/icon-512.png", site).href,
+  logo: new URL(withBase("icon-512.png"), site).href,
   telephone: contacts.phoneHref.replace("tel:", ""),
   address: {
     "@type": "PostalAddress",
@@ -87,10 +89,10 @@ const jsonLd = {
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <meta name="format-detection" content="telephone=no" />
 
-    <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="sitemap" href="/sitemap.xml" />
+    <link rel="icon" href={withBase("favicon.ico")} sizes="32x32" />
+    <link rel="icon" href={withBase("icon-192.png")} type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href={withBase("apple-touch-icon.png")} />
+    <link rel="sitemap" href={withBase("sitemap.xml")} />
 
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="uk_UA" />
