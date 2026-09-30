@@ -1,0 +1,116 @@
+---
+import Icon from "./Icon.astro";
+import Photo from "./Photo.astro";
+import { contacts, external } from "../data/contacts";
+---
+
+<section class="pt-6 pb-10 md:pt-12 md:pb-14 lg:pt-16 lg:pb-16" aria-labelledby="hero-title">
+  <div class="wrap grid items-center gap-8 md:gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-16">
+    <div>
+      <a href={contacts.mapsUrl} {...external} class="badge">
+        <Icon name="star" size={15} filled />
+        <span>{contacts.rating} з 5 · Google відгуки</span>
+      </a>
+
+      <h1 id="hero-title" class="h1 mt-5 md:mt-6">Тут не тільки<br class="hidden lg:inline" /> про стрижку.</h1>
+
+      <p class="lead mt-5 max-w-[36rem] md:mt-6">
+        Барбершоп у центрі Львова, де звичайна стрижка стає твоїм власним стилем. Традиційні техніки й сучасний
+        барберинг.
+      </p>
+
+      <div class="mt-8 flex flex-wrap gap-3 md:mt-10">
+        <a href={contacts.bookingUrl} {...external} class="btn btn-primary btn-lg">Записатися онлайн</a>
+        <a href="#services" class="btn btn-secondary btn-lg">Ціни</a>
+      </div>
+    </div>
+
+    <div class="relative">
+      <Photo
+        src="hero"
+        alt="Барбер стриже клієнта в залі Bless Cuts"
+        widths={[400, 560, 680, 800]}
+        sizes="(min-width: 1248px) 540px, (min-width: 1024px) 44vw, (min-width: 640px) calc(100vw - 48px), calc(100vw - 32px)"
+        class="aspect-4/5 rounded-[28px] md:aspect-16/10 md:rounded-[32px] lg:aspect-4/5"
+        priority
+      />
+
+      <div class="open-card">
+        <span class="open-card__dot" aria-hidden="true"></span>
+        <div>
+          <p class="text-[15px] leading-tight font-semibold">Сьогодні відкрито</p>
+          <p class="mt-1 text-[14px] leading-tight text-ink-2">
+            <span class="tabular-nums">{contacts.opens} — {contacts.closes}</span> · Щодня, без вихідних
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 0 16px 0 14px;
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
+    transition: transform 0.3s var(--ease);
+  }
+  @media (hover: hover) {
+    .badge:hover {
+      transform: scale(1.02);
+    }
+  }
+
+  .open-card {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: calc(100% - 24px);
+    padding: 14px 18px 14px 16px;
+    border-radius: 20px;
+    background: var(--float);
+    color: var(--text);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.14);
+    animation: float-in 0.9s var(--ease) 0.35s both;
+  }
+  .open-card__dot {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: #30d158;
+    box-shadow: 0 0 0 4px rgb(48 209 88 / 0.18);
+  }
+
+  @media (min-width: 768px) {
+    .open-card {
+      left: 24px;
+      bottom: 24px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .open-card {
+      left: -32px;
+      bottom: 40px;
+    }
+  }
+
+  @keyframes float-in {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+  }
+</style>

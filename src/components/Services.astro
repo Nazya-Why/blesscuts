@@ -1,0 +1,259 @@
+---
+import { levels, services } from "../data/services";
+import { contacts, external } from "../data/contacts";
+import { formatPrice } from "../lib/format";
+
+// Для кожного рівня — лише ті послуги, що на ньому є
+const panels = levels.map((level, i) => ({
+  ...level,
+  rows: services
+    .map((s) => ({ name: s.name, note: s.note, price: s.prices[i] }))
+    .filter((r): r is { name: string; note: string; price: string } => r.price !== null),
+}));
+---
+
+<section id="services" class="section" aria-labelledby="services-title">
+  <div class="wrap">
+    <div class="mx-auto max-w-[880px]">
+      <div class="reveal text-center">
+        <p class="eyebrow">Послуги та ціни</p>
+        <h2 id="services-title" class="h2 mt-3">Обери рівень майстра.</h2>
+        <p class="lead mx-auto mt-4 max-w-[40rem] text-balance">Ціна залежить від досвіду барбера. Усі ціни в гривнях.</p>
+      </div>
+
+      <div class="reveal mt-8 md:mt-12" style="--i:1" data-tabs>
+        <div class="flex justify-center">
+          <div class="tablist" role="tablist" aria-label="Рівень майстра">
+            {
+              panels.map((p, i) => (
+                <button
+                  type="button"
+                  class="tab"
+                  role="tab"
+                  id={`tab-${p.id}`}
+                  aria-controls={`panel-${p.id}`}
+                  aria-selected={i === 0 ? "true" : "false"}
+                  tabindex={i === 0 ? 0 : -1}
+                >
+                  {p.label}
+                </button>
+              ))
+            }
+          </div>
+        </div>
+
+        {
+          panels.map((p, i) => (
+            <div class="panel" role="tabpanel" id={`panel-${p.id}`} aria-labelledby={`tab-${p.id}`} hidden={i !== 0}>
+              <ul class="price-list">
+                {p.rows.map((r) => (
+                  <li class="price-row">
+                    <span class="min-w-0">
+                      <span class="block font-medium">{r.name}</span>
+                      {r.note && <span class="mt-0.5 block text-[14px] text-ink-2">{r.note}</span>}
+                    </span>
+                    <span class="price">{formatPrice(r.price)}</span>
+                  </li>
+                ))}
+              </ul>
+              <div class="panel__foot">
+                <p class="text-[15px] text-ink-2">
+                  Майстри цього рівня: <span class="font-semibold text-ink">{p.barbers}</span>
+                </p>
+                <a href={contacts.bookingUrl} {...external} class="btn btn-primary w-full sm:w-auto">
+                  Записатися
+                </a>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Таби-пігулки: мобільні — сітка 2×3, планшет — 3×2, десктоп — один ряд */
+  .tablist {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    width: 100%;
+    padding: 4px;
+    border-radius: 24px;
+    background: var(--card);
+  }
+  .tab {
+    min-height: 44px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--text-2);
+    transition:
+      background-color 0.35s var(--ease),
+      color 0.35s var(--ease),
+      box-shadow 0.35s var(--ease);
+  }
+  .tab:hover {
+    color: var(--text);
+  }
+  .tab[aria-selected="true"] {
+    background: var(--tab-active);
+    color: var(--text);
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.06),
+      0 4px 14px rgb(0 0 0 / 0.06);
+  }
+  .tab:focus-visible {
+    outline-offset: -2px;
+  }
+
+  @media (min-width: 640px) {
+    .tablist {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .tablist {
+      display: flex;
+      width: auto;
+      max-width: 100%;
+      overflow-x: auto;
+      border-radius: 999px;
+      scrollbar-width: none;
+    }
+    .tablist::-webkit-scrollbar {
+      display: none;
+    }
+    .tab {
+      flex: none;
+      padding: 8px 16px;
+      white-space: nowrap;
+    }
+  }
+
+  .panel {
+    margin-top: 16px;
+    padding: 6px;
+    border: 1px solid var(--border);
+    border-radius: 28px;
+  }
+  .panel:not([hidden]) {
+    animation: panel-in 0.35s var(--ease);
+  }
+
+  .price-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    transition: background-color 0.3s var(--ease);
+  }
+  /* Розділювачі між рядками; ховаються біля рядка під курсором */
+  .price-row + .price-row::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 16px;
+    right: 16px;
+    height: 1px;
+    background: var(--border);
+    transition: opacity 0.3s var(--ease);
+  }
+  .price-row:hover {
+    background: var(--card);
+  }
+  .price-row:hover::before,
+  .price-row:hover + .price-row::before {
+    opacity: 0;
+  }
+
+  .price {
+    flex: none;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .panel__foot {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 6px;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (min-width: 640px) {
+    .panel {
+      padding: 8px;
+    }
+    .price-row {
+      padding: 16px 20px;
+    }
+    .price-row + .price-row::before {
+      left: 20px;
+      right: 20px;
+    }
+    .panel__foot {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 12px 12px 20px;
+    }
+  }
+
+  @keyframes panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+</style>
+
+<script>
+  // Доступні таби (WAI-ARIA): клік, ←/→, Home/End
+  document.querySelectorAll<HTMLElement>("[data-tabs]").forEach((root) => {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const list = root.querySelector<HTMLElement>('[role="tablist"]');
+
+    function select(index: number, focus: boolean) {
+      tabs.forEach((tab, i) => {
+        const active = i === index;
+        tab.setAttribute("aria-selected", String(active));
+        tab.tabIndex = active ? 0 : -1;
+        const panel = document.getElementById(tab.getAttribute("aria-controls") ?? "");
+        if (panel) panel.hidden = !active;
+      });
+      const tab = tabs[index];
+      if (focus) tab.focus({ preventScroll: true });
+      // Якщо таби прокручуються горизонтально — підтягнути активний у видиму зону
+      if (list && list.scrollWidth > list.clientWidth) {
+        list.scrollTo({ left: tab.offsetLeft - (list.clientWidth - tab.offsetWidth) / 2, behavior: "smooth" });
+      }
+    }
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener("click", () => select(i, false));
+      tab.addEventListener("keydown", (e) => {
+        const last = tabs.length - 1;
+        const next =
+          e.key === "ArrowRight" ? (i === last ? 0 : i + 1)
+          : e.key === "ArrowLeft" ? (i === 0 ? last : i - 1)
+          : e.key === "Home" ? 0
+          : e.key === "End" ? last
+          : null;
+        if (next === null) return;
+        e.preventDefault();
+        select(next, true);
+      });
+    });
+  });
+</script>

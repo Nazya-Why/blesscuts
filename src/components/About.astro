@@ -1,0 +1,27 @@
+---
+import Photo from "./Photo.astro";
+---
+
+<section id="about" class="section bg-section" aria-labelledby="about-title">
+  <div class="wrap grid items-center gap-8 md:grid-cols-2 md:gap-12 lg:gap-20">
+    <Photo
+      src="about"
+      alt="Зал барбершопу Bless Cuts з барберськими кріслами"
+      widths={[400, 560, 680, 800]}
+      sizes="(min-width: 1248px) 560px, (min-width: 768px) 45vw, calc(100vw - 32px)"
+      class="reveal order-2 aspect-4/5 rounded-[28px] md:order-none"
+    />
+
+    <div class="reveal" style="--i:1">
+      <p class="eyebrow">Про нас</p>
+      <h2 id="about-title" class="h2 mt-3">Стрижка, яка підкреслює характер.</h2>
+      <p class="lead mt-6">
+        В Bless Cuts звичайні стрижки перетворюються на витвори мистецтва. Тут професіонали своєї справи створять
+        твій власний, неповторний стиль, що відображатиме твою індивідуальність.
+      </p>
+      <p class="lead mt-4">
+        Традиційні техніки та сучасні тенденції барберингу в поєднанні з атмосферою для справжніх чоловіків.
+      </p>
+    </div>
+  </div>
+</section>

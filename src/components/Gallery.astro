@@ -1,0 +1,59 @@
+---
+import Icon from "./Icon.astro";
+import Photo from "./Photo.astro";
+import { contacts, external } from "../data/contacts";
+
+// Файли: src/assets/gallery/1..5.jpg — перше показується великим квадратом
+const shots = [
+  { src: "gallery/1", alt: "Барбер з помазком у клубах пудри" },
+  { src: "gallery/2", alt: "Миття голови клієнта перед стрижкою" },
+  { src: "gallery/3", alt: "Зал барбершопу з квадратними світильниками" },
+  { src: "gallery/4", alt: "Ножиці та візитка Bless Cuts" },
+  { src: "gallery/5", alt: "Ножиці, машинка та бритва на чорному дереві" },
+];
+---
+
+<section id="gallery" class="section" aria-labelledby="gallery-title">
+  <div class="wrap">
+    <div class="reveal flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
+      <div>
+        <p class="eyebrow">Галерея</p>
+        <h2 id="gallery-title" class="h2 mt-3">Наші роботи.</h2>
+      </div>
+      <a href={contacts.instagramUrl} {...external} class="link-arrow">
+        Більше робіт в Instagram <Icon name="arrow" size={18} />
+      </a>
+    </div>
+
+    <ul class="mt-6 grid grid-cols-2 gap-2 md:mt-12 md:gap-4 lg:grid-cols-4">
+      {
+        shots.map((shot, i) => (
+          <li class:list={["zoom reveal", i === 0 && "col-span-2 lg:row-span-2"]} style={`--i:${i}`}>
+            <Photo
+              src={shot.src}
+              alt={shot.alt}
+              widths={i === 0 ? [400, 600, 800] : [300, 450, 600]}
+              sizes={
+                i === 0
+                  ? "(min-width: 1248px) 600px, (min-width: 1024px) 50vw, calc(100vw - 32px)"
+                  : "(min-width: 1248px) 292px, (min-width: 1024px) 25vw, 50vw"
+              }
+              class={i === 0 ? "aspect-square rounded-[24px] lg:aspect-auto lg:h-full" : "aspect-square rounded-[16px]"}
+            />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style is:global>
+  .zoom .media img {
+    transition: transform 0.8s var(--ease);
+  }
+  @media (hover: hover) {
+    .zoom:hover .media img {
+      transform: scale(1.04);
+    }
+  }
+</style>

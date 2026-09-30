@@ -1,0 +1,44 @@
+---
+import Logo from "./Logo.astro";
+import { contacts } from "../data/contacts";
+---
+
+<article class="certificate on-black reveal" aria-labelledby="certificate-title">
+  <Logo widths={[260, 520]} sizes="260px" class="w-[220px] md:w-[260px]" />
+  <p class="eyebrow mt-6 text-[#a1a1a6] md:mt-8">Подарунковий сертифікат</p>
+  <h2 id="certificate-title" class="h3 mt-3 max-w-[20ch]">Подарунок, який оцінить кожен чоловік.</h2>
+  <p class="mt-4 max-w-[34rem] text-[17px] leading-normal text-[#c7c7cc]">
+    Будь-яка послуга барбершопу — від стрижки до догляду за бородою. Діє 4 місяці з моменту придбання.
+  </p>
+  <div class="mt-auto pt-8">
+    <a href={contacts.phoneHref} class="btn btn-light btn-lg">Замовити сертифікат</a>
+  </div>
+</article>
+
+<style>
+  .certificate {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 24px;
+    border-radius: 28px;
+    background: var(--brand-black);
+    color: #ffffff;
+    text-align: center;
+  }
+  /* На чорній сторінці картка інакше зливається з фоном */
+  :global(:root[data-theme="dark"]) .certificate {
+    border: 1px solid #2c2c2e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .certificate {
+      border: 1px solid #2c2c2e;
+    }
+  }
+  @media (min-width: 768px) {
+    .certificate {
+      padding: 48px;
+      border-radius: 32px;
+    }
+  }
+</style>

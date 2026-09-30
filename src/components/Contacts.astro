@@ -1,0 +1,161 @@
+---
+import Icon from "./Icon.astro";
+import { contacts, directionsUrl, external } from "../data/contacts";
+
+// Перенос у нікнеймі — лише після крапки, не посеред слова
+const instagramParts = contacts.instagram.split(".");
+const mapQuery = encodeURIComponent(`${contacts.name}, ${contacts.address}, ${contacts.city}`);
+const mapSrc = `https://maps.google.com/maps?q=${mapQuery}&ll=${contacts.geo.lat},${contacts.geo.lng}&z=16&hl=uk&output=embed`;
+---
+
+<section id="contacts" class="section bg-section" aria-labelledby="contacts-title">
+  <div class="wrap">
+    <div class="reveal">
+      <p class="eyebrow">Контакти</p>
+      <h2 id="contacts-title" class="h2 mt-3">Чекаємо на тебе.</h2>
+    </div>
+
+    <div class="mt-8 grid gap-3 md:mt-12 lg:grid-cols-12 lg:gap-5">
+      <ul class="contact-list lg:col-span-5">
+        <li class="reveal">
+          <a href={contacts.phoneHref} class="contact-card lift">
+            <span class="contact-card__icon"><Icon name="phone" size={22} /></span>
+            <span class="min-w-0 flex-1">
+              <span class="contact-card__label">Телефон</span>
+              <span class="contact-card__value tabular-nums">{contacts.phone}</span>
+            </span>
+            <Icon name="arrow" size={20} class="shrink-0 text-ink-2" />
+          </a>
+        </li>
+        <li class="reveal" style="--i:1">
+          <a href={contacts.instagramUrl} {...external} class="contact-card lift">
+            <span class="contact-card__icon"><Icon name="instagram" size={22} /></span>
+            <span class="min-w-0 flex-1">
+              <span class="contact-card__label">Instagram</span>
+              <span class="contact-card__value">{instagramParts[0]}.<wbr />{instagramParts.slice(1).join(".")}</span>
+            </span>
+            <Icon name="arrow-up-right" size={20} class="shrink-0 text-ink-2" />
+          </a>
+        </li>
+        <li class="reveal" style="--i:2">
+          <div class="contact-card">
+            <span class="contact-card__icon"><Icon name="clock" size={22} /></span>
+            <span class="min-w-0 flex-1">
+              <span class="contact-card__label">Години роботи</span>
+              <span class="contact-card__value tabular-nums">{contacts.hours}</span>
+              <span class="mt-0.5 block text-[14px] text-ink-2">Щодня, без вихідних</span>
+            </span>
+          </div>
+        </li>
+      </ul>
+
+      <div class="map-card reveal lg:col-span-7" style="--i:1">
+        <iframe
+          src={mapSrc}
+          title={`Карта: ${contacts.name}, ${contacts.address}, ${contacts.city}`}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          class="map-card__frame"></iframe>
+        <div class="flex flex-col gap-1 p-5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 md:px-6">
+          <div class="flex items-start gap-3">
+            <Icon name="pin" size={22} class="mt-0.5 shrink-0 text-ink-2" />
+            <address class="not-italic">
+              <span class="block font-semibold">{contacts.address}</span>
+              <span class="block text-[15px] text-ink-2">{contacts.city}, {contacts.postalCode} · центр міста</span>
+            </address>
+          </div>
+          <a href={directionsUrl} {...external} class="link-arrow ml-[34px] shrink-0 sm:ml-0">
+            Прокласти маршрут <Icon name="arrow" size={18} />
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact-list {
+    display: grid;
+    gap: 12px;
+  }
+  @media (min-width: 1024px) {
+    .contact-list {
+      grid-template-rows: repeat(3, 1fr);
+      gap: 20px;
+    }
+  }
+  .contact-list > li {
+    display: flex;
+  }
+
+  .contact-card {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 16px;
+    min-height: 88px;
+    padding: 18px 20px;
+    border-radius: 22px;
+    background: var(--card-on-section);
+    color: var(--text);
+  }
+  .contact-card__icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 999px;
+    background: var(--section);
+  }
+  .contact-card__label {
+    display: block;
+    font-size: 14px;
+    color: var(--text-2);
+  }
+  .contact-card__value {
+    display: block;
+    margin-top: 2px;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+    overflow-wrap: break-word;
+  }
+  @media (min-width: 640px) {
+    .contact-card__value {
+      font-size: 19px;
+    }
+  }
+
+  .map-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 28px;
+    background: var(--card-on-section);
+  }
+  .map-card__frame {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border: 0;
+    background: var(--ph);
+  }
+  @media (min-width: 1024px) {
+    .map-card__frame {
+      flex: 1;
+      min-height: 340px;
+      aspect-ratio: auto;
+    }
+  }
+  /* У темній темі — темна карта */
+  :global(:root[data-theme="dark"]) .map-card__frame {
+    filter: invert(0.9) hue-rotate(180deg) saturate(0.7);
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .map-card__frame {
+      filter: invert(0.9) hue-rotate(180deg) saturate(0.7);
+    }
+  }
+</style>

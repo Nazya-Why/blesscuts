@@ -1,0 +1,45 @@
+---
+// Фото з src/assets у AVIF/WebP з lazy-loading. Якщо файлу ще немає — сіра заглушка з підписом.
+import { Picture } from "astro:assets";
+import Icon from "./Icon.astro";
+import { asset } from "../lib/images";
+
+interface Props {
+  /** Шлях у src/assets без розширення: "hero", "barbers/denys", "gallery/1" */
+  src: string;
+  alt: string;
+  widths: number[];
+  sizes: string;
+  /** Класи обгортки: пропорція, заокруглення */
+  class?: string;
+  /** Головне фото першого екрана — без lazy-loading */
+  priority?: boolean;
+}
+
+const { src, alt, widths, sizes, class: className, priority = false } = Astro.props;
+const image = asset(src);
+// Не збільшуємо зображення понад оригінал
+const srcWidths = image ? [...new Set(widths.map((w) => Math.min(w, image.width)))] : [];
+---
+
+<div class:list={["media", className]}>
+  {
+    image ? (
+      <Picture
+        src={image}
+        alt={alt}
+        widths={srcWidths}
+        sizes={sizes}
+        formats={["avif", "webp"]}
+        fallbackFormat="jpg"
+        loading={priority ? "eager" : "lazy"}
+        fetchpriority={priority ? "high" : undefined}
+      />
+    ) : (
+      <div class="ph" role="img" aria-label={alt}>
+        <Icon name="image" size={28} />
+        <span>src/assets/{src}.jpg</span>
+      </div>
+    )
+  }
+</div>

@@ -1,0 +1,32 @@
+---
+// Графічне лого (біле). Ставиться ТІЛЬКИ на чорний фон: футер і картка сертифіката.
+import { Picture } from "astro:assets";
+import { asset } from "../lib/images";
+
+interface Props {
+  widths: number[];
+  sizes: string;
+  class?: string;
+}
+
+const { widths, sizes, class: className } = Astro.props;
+const logo = asset("logo");
+const srcWidths = logo ? [...new Set(widths.map((w) => Math.min(w, logo.width)))] : [];
+---
+
+{
+  logo ? (
+    <Picture
+      src={logo}
+      alt="Bless Cuts barbershop, засновано у 2023 році"
+      widths={srcWidths}
+      sizes={sizes}
+      formats={["avif", "webp"]}
+      fallbackFormat="png"
+      loading="lazy"
+      class:list={["block h-auto", className]}
+    />
+  ) : (
+    <p class:list={["text-center text-[28px] font-bold tracking-[0.08em] text-white", className]}>BLESS CUTS</p>
+  )
+}

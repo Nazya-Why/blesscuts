@@ -1,0 +1,99 @@
+---
+import Icon from "./Icon.astro";
+import { contacts, external } from "../data/contacts";
+import { barbers } from "../data/barbers";
+import { minPrice } from "../data/services";
+
+const stats = [
+  { prefix: "", value: contacts.rating, label: "Рейтинг у Google" },
+  { prefix: "", value: String(barbers.length), label: "Майстрів різного рівня" },
+  { prefix: "від", value: `${minPrice("Стрижка голови")} ₴`, label: "Чоловіча стрижка" },
+];
+---
+
+<section class="pb-12 md:pb-20 lg:pb-28" aria-label="Bless Cuts у цифрах">
+  <ul class="wrap grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
+    {
+      stats.map((s, i) => (
+        <li class="stat reveal" style={`--i:${i}`}>
+          <p class="stat__value">
+            {s.prefix && <span class="stat__prefix">{s.prefix} </span>}
+            {s.value}
+          </p>
+          <p class="stat__label">{s.label}</p>
+        </li>
+      ))
+    }
+    <li class="reveal" style="--i:3">
+      <a href={contacts.mapsUrl} {...external} class="stat stat--inverse lift h-full">
+        <p class="stat__address">{contacts.address}</p>
+        <p class="stat__label">Центр Львова</p>
+        <Icon name="arrow-up-right" size={20} class="absolute top-[18px] right-[18px] opacity-70 md:top-[26px] md:right-[26px]" />
+      </a>
+    </li>
+  </ul>
+</section>
+
+<style>
+  .stat {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 20px;
+    min-height: 136px;
+    padding: 20px;
+    border-radius: 24px;
+    background: var(--card);
+  }
+  .stat__value {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat__prefix {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .stat__address {
+    padding-right: 24px;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+  }
+  .stat__label {
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--text-2);
+  }
+  .stat--inverse {
+    background: var(--btn-bg);
+    color: var(--btn-text);
+  }
+  .stat--inverse .stat__label {
+    color: color-mix(in srgb, var(--btn-text) 68%, transparent);
+  }
+
+  @media (min-width: 768px) {
+    .stat {
+      min-height: 168px;
+      padding: 28px;
+    }
+    .stat__value {
+      font-size: 44px;
+    }
+    .stat__prefix {
+      font-size: 20px;
+    }
+    .stat__address {
+      font-size: 21px;
+    }
+    .stat__label {
+      font-size: 15px;
+    }
+  }
+</style>

@@ -1,0 +1,67 @@
+---
+import Logo from "./Logo.astro";
+import { nav } from "../data/nav";
+import { contacts, external } from "../data/contacts";
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer on-black">
+  <div class="wrap flex flex-col items-center pt-16 pb-10 text-center md:pt-24 md:pb-12">
+    <Logo widths={[300, 420, 600, 840]} sizes="(min-width: 768px) 420px, 300px" class="w-[300px] max-w-full md:w-[420px]" />
+
+    <a href={contacts.bookingUrl} {...external} class="btn btn-light btn-lg mt-8 md:mt-10">Записатися онлайн</a>
+
+    <nav aria-label="Навігація у футері" class="mt-10 md:mt-12">
+      <ul class="flex flex-wrap justify-center gap-x-2 md:gap-x-4">
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} class="footer-link">
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <hr class="mt-8 w-full border-0 border-t border-white/12 md:mt-10" />
+
+    <div class="mt-6 flex w-full flex-col items-center gap-2 text-[14px] text-[#86868b] md:flex-row md:justify-between">
+      <p>
+        {contacts.address}, {contacts.city} ·
+        <a href={contacts.phoneHref} class="whitespace-nowrap text-[#d2d2d7] underline decoration-white/35 underline-offset-4 transition-colors hover:text-white hover:decoration-white">{contacts.phone}</a>
+      </p>
+      <p>© {contacts.founded}–{year} {contacts.name}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--brand-black);
+    color: #ffffff;
+  }
+  :global(:root[data-theme="dark"]) .site-footer {
+    border-top: 1px solid #1c1c1e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .site-footer {
+      border-top: 1px solid #1c1c1e;
+    }
+  }
+
+  .footer-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 10px;
+    font-size: 15px;
+    color: #a1a1a6;
+    transition: color 0.3s var(--ease);
+  }
+  .footer-link:hover {
+    color: #ffffff;
+  }
+</style>

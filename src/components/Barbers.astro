@@ -1,0 +1,66 @@
+---
+import Photo from "./Photo.astro";
+import { barbers } from "../data/barbers";
+import { external } from "../data/contacts";
+---
+
+<section id="barbers" class="section bg-section" aria-labelledby="barbers-title">
+  <div class="wrap">
+    <div class="reveal">
+      <p class="eyebrow">Майстри</p>
+      <h2 id="barbers-title" class="h2 mt-3">Команда Bless Cuts.</h2>
+    </div>
+
+    <!-- Мобільні: 2 колонки, усі 8 майстрів видно без горизонтального гортання -->
+    <ul class="mt-8 grid grid-cols-2 gap-3 md:mt-12 md:gap-5 lg:grid-cols-4">
+      {
+        barbers.map((b, i) => (
+          <li class="reveal" style={`--i:${i % 4}`}>
+            <article class="barber lift">
+              <Photo
+                src={`barbers/${b.photo}`}
+                alt={`${b.name}, ${b.level.toLowerCase()} Bless Cuts`}
+                widths={[240, 360, 480]}
+                sizes="(min-width: 1248px) 276px, (min-width: 1024px) 23vw, 46vw"
+                class="aspect-7/8 rounded-[16px]"
+              />
+              <div class="flex flex-1 flex-col px-1.5 pt-3.5 pb-1 md:px-2 md:pt-5">
+                <p class="text-[13px] leading-snug font-medium text-ink-2 md:text-[14px]">{b.level}</p>
+                <h3 class="mt-1 text-[19px] leading-tight font-semibold tracking-[-0.02em] md:text-[22px]">{b.name}</h3>
+                <p class="mt-2 hidden text-[15px] leading-[1.45] text-ink-3 md:block">{b.bio}</p>
+                <div class="mt-auto pt-4 md:pt-5">
+                  <a
+                    href={b.bookingUrl}
+                    {...external}
+                    class="btn btn-soft btn-wrap w-full"
+                    aria-label={`Записатися до ${b.nameGen}`}
+                  >
+                    <span class="md:hidden lg:inline xl:hidden">Записатися</span>
+                    <span class="hidden md:inline lg:hidden xl:inline">Записатися до {b.nameGen}</span>
+                  </a>
+                </div>
+              </div>
+            </article>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .barber {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 8px 8px 10px;
+    border-radius: 22px;
+    background: var(--card-on-section);
+  }
+  @media (min-width: 768px) {
+    .barber {
+      padding: 12px 12px 14px;
+      border-radius: 24px;
+    }
+  }
+</style>
