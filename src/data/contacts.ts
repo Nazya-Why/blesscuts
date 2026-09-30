@@ -4,6 +4,11 @@ export const contacts = {
   phoneHref: "tel:+380975444454",
   instagram: "@blesscuts.barbershop",
   instagramUrl: "https://www.instagram.com/blesscuts.barbershop/",
+  tiktok: "@blesscuts.barbers",
+  tiktokUrl: "https://www.tiktok.com/@blesscuts.barbers",
+  /** 3D-огляд барбершопу в Google Maps (посилання з біо Instagram) */
+  tourUrl: "https://maps.app.goo.gl/mP4bveQNTFDRpimZ9",
+  slogan: "Твій стиль — наше мистецтво.",
   address: "пл. Данила Галицького, 16",
   city: "Львів",
   postalCode: "79008",
@@ -20,6 +25,14 @@ export const contacts = {
 
 /** Маршрут у Google Maps до барбершопу */
 export const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${contacts.geo.lat},${contacts.geo.lng}`;
+
+/** Соцмережі й корисні посилання у футері — ті самі, що в біо Instagram барбершопу */
+export const socials = [
+  { label: "Instagram", url: contacts.instagramUrl, icon: "instagram" },
+  { label: "TikTok", url: contacts.tiktokUrl, icon: "tiktok" },
+  { label: "3D-тур", url: contacts.tourUrl, icon: "cube" },
+  { label: "Відгуки Google", url: contacts.mapsUrl, icon: "star" },
+] as const;
 
 /** Атрибути для зовнішніх посилань (запис, Instagram, карти) */
 export const external = { target: "_blank", rel: "noopener" } as const;

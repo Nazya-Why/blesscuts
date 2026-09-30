@@ -1,39 +1,43 @@
 ---
+import Icon from "./Icon.astro";
 import Logo from "./Logo.astro";
-import { nav } from "../data/nav";
-import { contacts, external } from "../data/contacts";
+import { contacts, external, socials } from "../data/contacts";
 
 const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer on-black">
-  <div class="wrap flex flex-col items-center pt-16 pb-10 text-center md:pt-24 md:pb-12">
+  <div class="wrap flex flex-col items-center pt-16 pb-12 text-center md:pt-24 md:pb-16">
     <Logo widths={[300, 420, 600, 840]} sizes="(min-width: 768px) 420px, 300px" class="w-[300px] max-w-full md:w-[420px]" />
+    <p class="mt-3 text-[17px] text-[#a1a1a6] md:text-[19px]">{contacts.slogan}</p>
 
     <a href={contacts.bookingUrl} {...external} class="btn btn-light btn-lg mt-8 md:mt-10">Записатися онлайн</a>
 
-    <nav aria-label="Навігація у футері" class="mt-10 md:mt-12">
-      <ul class="flex flex-wrap justify-center gap-x-2 md:gap-x-4">
-        {
-          nav.map((item) => (
-            <li>
-              <a href={item.href} class="footer-link">
-                {item.label}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
+    <ul class="socials mt-10 md:mt-12" aria-label="Bless Cuts в інтернеті">
+      {
+        socials.map((s) => (
+          <li>
+            <a href={s.url} {...external} class="social">
+              <Icon name={s.icon} size={20} class="shrink-0" />
+              {s.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
 
-    <hr class="mt-8 w-full border-0 border-t border-white/12 md:mt-10" />
-
-    <div class="mt-6 flex w-full flex-col items-center gap-2 text-[14px] text-[#86868b] md:flex-row md:justify-between">
-      <p>
-        {contacts.address}, {contacts.city} ·
-        <a href={contacts.phoneHref} class="whitespace-nowrap text-[#d2d2d7] underline decoration-white/35 underline-offset-4 transition-colors hover:text-white hover:decoration-white">{contacts.phone}</a>
+  <div class="wrap">
+    <div class="footer-bar">
+      <!-- Статус рахується за київським часом; без JS лишаються просто години роботи -->
+      <p class="status md:justify-self-center" data-open-status data-opens={contacts.opens} data-closes={contacts.closes}>
+        <span class="status__dot" aria-hidden="true"></span>
+        <span data-status-text>Щодня {contacts.opens} — {contacts.closes}</span>
       </p>
-      <p>© {contacts.founded}–{year} {contacts.name}</p>
+      <p class="md:order-first md:justify-self-start">© {contacts.founded}–{year} {contacts.name}</p>
+      <a href="#top" class="to-top md:justify-self-end">
+        Нагору <Icon name="arrow-up" size={16} />
+      </a>
     </div>
   </div>
 </footer>
@@ -52,16 +56,156 @@ const year = new Date().getFullYear();
     }
   }
 
-  .footer-link {
+  /* Соцмережі: мобільні — сітка 2×2, далі — один ряд пігулок */
+  .socials {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    max-width: 420px;
+  }
+  @media (min-width: 640px) {
+    .socials {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      max-width: none;
+    }
+    .social {
+      gap: 10px;
+      padding: 0 20px;
+    }
+  }
+  .social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.08);
+    color: #f5f5f7;
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition:
+      background-color 0.3s var(--ease),
+      transform 0.3s var(--ease);
+  }
+  @media (hover: hover) {
+    .social:hover {
+      background: rgb(255 255 255 / 0.16);
+      transform: scale(1.02);
+    }
+  }
+
+  .footer-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 20px 0 max(24px, env(safe-area-inset-bottom));
+    border-top: 1px solid rgb(255 255 255 / 0.12);
+    font-size: 14px;
+    color: #86868b;
+    text-align: center;
+  }
+  @media (min-width: 768px) {
+    .footer-bar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 16px;
+      padding-top: 16px;
+    }
+  }
+
+  .status {
     display: inline-flex;
     align-items: center;
+    gap: 10px;
     min-height: 44px;
-    padding: 0 10px;
-    font-size: 15px;
-    color: #a1a1a6;
+    color: #d2d2d7;
+  }
+  .status__dot {
+    position: relative;
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #6e6e73;
+  }
+  .status[data-state="open"] .status__dot {
+    background: #30d158;
+  }
+  .status[data-state="open"] .status__dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: #30d158;
+    animation: status-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+  .status[data-state="closed"] .status__dot {
+    background: #ff9f0a;
+  }
+
+  .to-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    color: #d2d2d7;
     transition: color 0.3s var(--ease);
   }
-  .footer-link:hover {
+  .to-top:hover {
     color: #ffffff;
   }
+
+  @keyframes status-ping {
+    0% {
+      transform: scale(1);
+      opacity: 0.55;
+    }
+    75%,
+    100% {
+      transform: scale(2.8);
+      opacity: 0;
+    }
+  }
 </style>
+
+<script>
+  // «Зараз відкрито · до 20:00» / «Зараз зачинено · відкриємося о 10:00» за часом Львова
+  const status = document.querySelector<HTMLElement>("[data-open-status]");
+  const text = status?.querySelector<HTMLElement>("[data-status-text]");
+
+  if (status && text) {
+    const { opens = "", closes = "" } = status.dataset;
+    const minutes = (hhmm: string) => {
+      const [h, m] = hhmm.split(":").map(Number);
+      return h * 60 + m;
+    };
+
+    let clock: Intl.DateTimeFormat;
+    try {
+      clock = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Kyiv", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+    } catch {
+      clock = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Kiev", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+    }
+
+    const update = () => {
+      const parts = clock.formatToParts(new Date());
+      const part = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? 0);
+      const now = part("hour") * 60 + part("minute");
+      const open = now >= minutes(opens) && now < minutes(closes);
+      status.dataset.state = open ? "open" : "closed";
+      text.textContent = open ? `Зараз відкрито · до ${closes}` : `Зараз зачинено · відкриємося о ${opens}`;
+    };
+
+    update();
+    setInterval(update, 60_000);
+  }
+</script>
