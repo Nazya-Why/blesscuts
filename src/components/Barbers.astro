@@ -1,12 +1,20 @@
 ---
 import Photo from "./Photo.astro";
-import { barbers } from "../data/barbers";
+import { barbers, needs } from "../data/barbers";
 import { contacts, external } from "../data/contacts";
 import { priceAt } from "../data/services";
 import { formatPrice } from "../lib/format";
 
 // Ціна стрижки в кожного майстра — з прайсу його рівня
-const cards = barbers.map((b) => ({ ...b, haircut: formatPrice(priceAt("Стрижка голови", b.level) ?? "") }));
+const haircutRaw = (level: string) => priceAt("Стрижка голови", level) ?? "";
+const minHaircut = Math.min(...barbers.map((b) => Number(haircutRaw(b.level).replace(/\D/g, ""))));
+
+// Фільтри підбору: запити з barbers.ts + «найдоступніші» (рахується з прайсу)
+const filters = [...needs, { id: "budget", label: `Стрижка за ${minHaircut} ₴` }];
+const cards = barbers.map((b) => {
+  const cheapest = Number(haircutRaw(b.level).replace(/\D/g, "")) === minHaircut;
+  return { ...b, haircut: formatPrice(haircutRaw(b.level)), tags: [...b.needs, ...(cheapest ? ["budget"] : [])] };
+});
 ---
 
 <section id="barbers" class="section bg-section" aria-labelledby="barbers-title">
@@ -16,11 +24,27 @@ const cards = barbers.map((b) => ({ ...b, haircut: formatPrice(priceAt("Стри
       <h2 id="barbers-title" class="h2 mt-3">Обери свого барбера.</h2>
     </div>
 
+    <!-- Підбір майстра: лише з JS; без нього просто видно всіх -->
+    <div class="picker reveal mt-6 md:mt-8" data-picker>
+      <p id="picker-label" class="text-[15px] font-semibold">Що тобі потрібно?</p>
+      <div class="mt-3 flex flex-wrap gap-2" role="group" aria-labelledby="picker-label">
+        <button type="button" class="pick" aria-pressed="true" data-need="all">Усі майстри</button>
+        {
+          filters.map((f) => (
+            <button type="button" class="pick" aria-pressed="false" data-need={f.id}>
+              {f.label}
+            </button>
+          ))
+        }
+      </div>
+      <p class="sr-only" aria-live="polite" data-picker-status></p>
+    </div>
+
     <!-- Мобільні: 2 колонки, усі 8 майстрів видно без горизонтального гортання -->
-    <ul class="mt-8 grid grid-cols-2 gap-3 md:mt-12 md:gap-5 lg:grid-cols-4">
+    <ul class="mt-6 grid grid-cols-2 gap-3 md:mt-8 md:gap-5 lg:grid-cols-4">
       {
         cards.map((b, i) => (
-          <li class="reveal" style={`--i:${i % 4}`}>
+          <li class="reveal" style={`--i:${i % 4}`} data-needs={b.tags.join(" ")} data-name={b.name}>
             <article class="barber lift">
               <Photo
                 src={`barbers/${b.photo}`}
@@ -88,6 +112,29 @@ const cards = barbers.map((b) => ({ ...b, haircut: formatPrice(priceAt("Стри
     color: var(--text-3);
   }
 
+  .picker {
+    display: none;
+  }
+  :global(.js) .picker {
+    display: block;
+  }
+  .pick {
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: 999px;
+    background: var(--card-on-section);
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 500;
+    transition:
+      background-color 0.35s var(--ease),
+      color 0.35s var(--ease);
+  }
+  .pick[aria-pressed="true"] {
+    background: var(--btn-bg);
+    color: var(--btn-text);
+  }
+
   .not-sure {
     display: flex;
     flex-direction: column;
@@ -113,3 +160,27 @@ const cards = barbers.map((b) => ({ ...b, haircut: formatPrice(priceAt("Стри
     }
   }
 </style>
+
+<script>
+  // «Що тобі потрібно?» — показує лише майстрів, які підходять під запит
+  const picker = document.querySelector<HTMLElement>("[data-picker]");
+  if (picker) {
+    const buttons = Array.from(picker.querySelectorAll<HTMLButtonElement>("[data-need]"));
+    const status = picker.querySelector<HTMLElement>("[data-picker-status]");
+    const items = Array.from(document.querySelectorAll<HTMLElement>("[data-needs]"));
+
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const need = btn.dataset.need ?? "all";
+        buttons.forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+        const shown: string[] = [];
+        for (const item of items) {
+          const fits = need === "all" || (item.dataset.needs ?? "").split(" ").includes(need);
+          item.hidden = !fits;
+          if (fits) shown.push(item.dataset.name ?? "");
+        }
+        if (status) status.textContent = need === "all" ? "Показано всіх майстрів" : `Підходять: ${shown.join(", ")}`;
+      });
+    });
+  }
+</script>

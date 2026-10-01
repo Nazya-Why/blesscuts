@@ -56,6 +56,12 @@ export function priceAt(serviceName: string, levelLabel: string): string | null 
   return service.prices[i];
 }
 
+/** Найнижча й найвища ціна послуги серед усіх рівнів — для structured data */
+export function priceRangeOf(service: Service): [number, number] {
+  const all = service.prices.flatMap((p) => (p ? amounts(p) : []));
+  return [Math.min(...all), Math.max(...all)];
+}
+
 /** Діапазон цін усього прайсу — для structured data */
 export function priceSpan(): [number, number] {
   const all = services.flatMap((s) => s.prices.flatMap((p) => (p ? amounts(p) : [])));

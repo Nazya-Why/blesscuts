@@ -2,7 +2,7 @@
 import { Font } from "astro:assets";
 import "../styles/global.css";
 import { contacts } from "../data/contacts";
-import { priceSpan } from "../data/services";
+import { priceRangeOf, priceSpan, services } from "../data/services";
 import { withBase } from "../lib/url";
 
 interface Props {
@@ -51,6 +51,19 @@ const jsonLd = {
     reviewCount: contacts.reviewCount,
   },
   sameAs: [contacts.instagramUrl, contacts.tiktokUrl],
+  // Прайс для пошуковиків: кожна послуга з діапазоном цін (від молодшого майстра до арт-директора)
+  hasOfferCatalog: {
+    "@type": "OfferCatalog",
+    name: "Послуги та ціни",
+    itemListElement: services.map((s) => {
+      const [minPrice, maxPrice] = priceRangeOf(s);
+      return {
+        "@type": "Offer",
+        itemOffered: { "@type": "Service", name: s.name },
+        priceSpecification: { "@type": "PriceSpecification", priceCurrency: "UAH", minPrice, maxPrice },
+      };
+    }),
+  },
   potentialAction: {
     "@type": "ReserveAction",
     target: {
