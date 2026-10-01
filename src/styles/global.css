@@ -257,6 +257,13 @@
     background: #ffffff;
     color: #000000;
   }
+  /* Напівпрозора кнопка поверх фото */
+  .btn-glass {
+    background: rgb(255 255 255 / 0.16);
+    color: #ffffff;
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+  }
 
   .icon-btn {
     display: inline-grid;

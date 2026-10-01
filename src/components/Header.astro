@@ -3,9 +3,16 @@ import Icon from "./Icon.astro";
 import ThemeToggle from "./ThemeToggle.astro";
 import { nav } from "../data/nav";
 import { contacts, external } from "../data/contacts";
+
+interface Props {
+  /** Сторінка починається з фото на весь екран: шапка над ним прозора з білим текстом */
+  overHero?: boolean;
+}
+
+const { overHero = false } = Astro.props;
 ---
 
-<header class="site-header">
+<header class:list={["site-header", overHero && "is-over-hero"]} data-site-header>
   <div class="wrap flex h-(--header-h) items-center justify-between gap-3 lg:grid lg:grid-cols-[1fr_auto_1fr]">
     <a href="#top" class="logo-text justify-self-start" aria-label="Bless Cuts — на початок сторінки">BLESS CUTS</a>
 
@@ -95,6 +102,41 @@ import { contacts, external } from "../data/contacts";
     }
   }
 
+  /* Над фото першого екрана: прозора, білий текст. Лише з JS — він знімає стан після фото. */
+  .site-header {
+    transition:
+      background-color 0.35s var(--ease),
+      border-color 0.35s var(--ease);
+  }
+  :global(.js) .site-header.is-over-hero {
+    --focus: #ffffff;
+    background: transparent;
+    border-bottom-color: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  :global(.js) .is-over-hero .logo-text {
+    color: #ffffff;
+  }
+  :global(.js) .is-over-hero .nav-link {
+    color: rgb(255 255 255 / 0.8);
+  }
+  :global(.js) .is-over-hero .nav-link:hover {
+    color: #ffffff;
+  }
+  :global(.js) .is-over-hero :global(.icon-btn) {
+    color: #ffffff;
+  }
+  :global(.js) .is-over-hero .btn-primary {
+    background: #ffffff;
+    color: #000000;
+  }
+  @media (hover: hover) {
+    :global(.js) .is-over-hero :global(.icon-btn:hover) {
+      background: rgb(255 255 255 / 0.14);
+    }
+  }
+
   .logo-text {
     display: inline-flex;
     align-items: center;
@@ -166,6 +208,20 @@ import { contacts, external } from "../data/contacts";
 </style>
 
 <script>
+  // Шапка прозора, поки під нею фото першого екрана
+  const header = document.querySelector<HTMLElement>("[data-site-header]");
+  const hero = document.querySelector<HTMLElement>("[data-hero]");
+  if (header && hero) {
+    // scroll і так приходить не частіше за кадр; перевірка — одне вимірювання
+    const update = () => {
+      header.classList.toggle("is-over-hero", hero.getBoundingClientRect().bottom > header.offsetHeight);
+    };
+    addEventListener("scroll", update, { passive: true });
+    addEventListener("resize", update);
+    update();
+  } else {
+    header?.classList.remove("is-over-hero");
+  }
   const menu = document.getElementById("mobile-menu") as HTMLDialogElement | null;
   const opener = document.querySelector<HTMLButtonElement>("[data-menu-open]");
 

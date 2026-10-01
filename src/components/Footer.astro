@@ -178,34 +178,6 @@ const year = new Date().getFullYear();
 </style>
 
 <script>
-  // «Зараз відкрито · до 20:00» / «Зараз зачинено · відкриємося о 10:00» за часом Львова
-  const status = document.querySelector<HTMLElement>("[data-open-status]");
-  const text = status?.querySelector<HTMLElement>("[data-status-text]");
-
-  if (status && text) {
-    const { opens = "", closes = "" } = status.dataset;
-    const minutes = (hhmm: string) => {
-      const [h, m] = hhmm.split(":").map(Number);
-      return h * 60 + m;
-    };
-
-    let clock: Intl.DateTimeFormat;
-    try {
-      clock = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Kyiv", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
-    } catch {
-      clock = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Kiev", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
-    }
-
-    const update = () => {
-      const parts = clock.formatToParts(new Date());
-      const part = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? 0);
-      const now = part("hour") * 60 + part("minute");
-      const open = now >= minutes(opens) && now < minutes(closes);
-      status.dataset.state = open ? "open" : "closed";
-      text.textContent = open ? `Зараз відкрито · до ${closes}` : `Зараз зачинено · відкриємося о ${opens}`;
-    };
-
-    update();
-    setInterval(update, 60_000);
-  }
+  // Живий статус роботи — спільний скрипт для першого екрана й футера
+  import "../scripts/open-status";
 </script>

@@ -1,107 +1,164 @@
 ---
+// Перший екран: фото на весь екран із затемненням, поверх — білий текст і кнопки.
+// Альбомні екрани отримують широкий кадр залу (hero-wide), портретні — вертикальне фото майстра (hero).
+import type { ImageMetadata } from "astro";
+import { getImage } from "astro:assets";
 import Icon from "./Icon.astro";
-import Photo from "./Photo.astro";
+import { asset } from "../lib/images";
 import { contacts, external, reviewsLabel } from "../data/contacts";
 import { barbers } from "../data/barbers";
 import { minPrice } from "../data/services";
+
+const wide = asset("hero-wide");
+const tall = asset("hero");
+
+async function variants(image: ImageMetadata, widths: number[]) {
+  const fit = widths.filter((w) => w <= image.width);
+  const [avif, webp, jpg] = await Promise.all(
+    (["avif", "webp", "jpg"] as const).map((format) => getImage({ src: image, widths: fit, format })),
+  );
+  return { avif: avif.srcSet.attribute, webp: webp.srcSet.attribute, jpg };
+}
+
+const wideSet = wide ? await variants(wide, [960, 1280, 1600]) : null;
+const tallSet = tall ? await variants(tall, [540, 720, 900, 1080]) : null;
 ---
 
-<section class="pt-6 pb-10 md:pt-12 md:pb-14 lg:pt-16 lg:pb-16" aria-labelledby="hero-title">
-  <div class="wrap grid items-center gap-8 md:gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-16">
-    <div>
-      <a href={contacts.mapsUrl} {...external} class="badge">
-        <Icon name="star" size={15} filled />
-        <span><span class="font-semibold">{contacts.rating}</span> · {reviewsLabel} відгуків у Google</span>
-      </a>
+<section class="hero on-black" data-hero aria-labelledby="hero-title">
+  {
+    tallSet && (
+      <picture class="hero__media">
+        {wideSet && <source media="(orientation: landscape)" type="image/avif" srcset={wideSet.avif} sizes="100vw" />}
+        {wideSet && <source media="(orientation: landscape)" type="image/webp" srcset={wideSet.webp} sizes="100vw" />}
+        {wideSet && <source media="(orientation: landscape)" srcset={wideSet.jpg.srcSet.attribute} sizes="100vw" />}
+        <source type="image/avif" srcset={tallSet.avif} sizes="100vw" />
+        <source type="image/webp" srcset={tallSet.webp} sizes="100vw" />
+        <img
+          src={tallSet.jpg.src}
+          srcset={tallSet.jpg.srcSet.attribute}
+          sizes="100vw"
+          alt="Барбер стриже клієнта в залі Bless Cuts"
+          width={tall?.width}
+          height={tall?.height}
+          fetchpriority="high"
+          decoding="async"
+        />
+      </picture>
+    )
+  }
+  <div class="hero__scrim" aria-hidden="true"></div>
 
-      <h1 id="hero-title" class="h1 mt-5 md:mt-6">Барбершоп у&nbsp;центрі Львова.</h1>
+  <div class="wrap hero__content">
+    <a href={contacts.mapsUrl} {...external} class="hero__badge">
+      <Icon name="star" size={15} filled />
+      <span><span class="font-semibold">{contacts.rating}</span> · {reviewsLabel} відгуків у Google</span>
+    </a>
 
-      <p class="lead mt-5 max-w-[36rem] md:mt-6">
-        Чоловічі стрижки, борода й камуфлювання сивини на площі Данила Галицького. {barbers.length} майстрів,
-        стрижка&nbsp;— від&nbsp;{minPrice("Стрижка голови")}&nbsp;₴.
-      </p>
+    <h1 id="hero-title" class="h1 mt-5 max-w-[14ch] md:mt-6">Барбершоп у&nbsp;центрі Львова.</h1>
 
-      <div class="mt-8 flex flex-wrap gap-3 md:mt-10" data-hero-cta>
-        <a href={contacts.bookingUrl} {...external} class="btn btn-primary btn-lg">Записатися онлайн</a>
-        <a href="#services" class="btn btn-secondary btn-lg">Ціни</a>
-      </div>
-      <p class="mt-4 flex items-center gap-2 text-[15px] text-ink-2">
-        <Icon name="check" size={18} class="shrink-0" />
-        Без дзвінків — обираєш майстра, послугу й час онлайн.
-      </p>
+    <p class="mt-4 max-w-[34rem] text-[17px] leading-normal text-white md:mt-5 md:text-[21px]">
+      Чоловічі стрижки, борода й камуфлювання сивини на площі Данила Галицького. {barbers.length} майстрів,
+      стрижка&nbsp;— від&nbsp;{minPrice("Стрижка голови")}&nbsp;₴.
+    </p>
+
+    <div class="mt-7 flex flex-wrap gap-3 md:mt-9" data-hero-cta>
+      <a href={contacts.bookingUrl} {...external} class="btn btn-light btn-lg">Записатися онлайн</a>
+      <a href="#services" class="btn btn-glass btn-lg">Ціни</a>
     </div>
 
-    <div class="relative">
-      <Photo
-        src="hero"
-        alt="Барбер стриже клієнта в залі Bless Cuts"
-        widths={[400, 560, 680, 800]}
-        sizes="(min-width: 1248px) 540px, (min-width: 1024px) 44vw, (min-width: 640px) calc(100vw - 48px), calc(100vw - 32px)"
-        class="aspect-4/5 rounded-[28px] md:aspect-16/10 md:rounded-[32px] lg:aspect-4/5"
-        priority
-      />
-
-      <div class="open-card">
-        <span class="open-card__dot" aria-hidden="true"></span>
-        <div>
-          <p class="text-[15px] leading-tight font-semibold">Сьогодні відкрито</p>
-          <p class="mt-1 text-[14px] leading-tight text-ink-2">
-            <span class="tabular-nums">{contacts.opens} — {contacts.closes}</span> · Щодня, без вихідних
-          </p>
-        </div>
-      </div>
+    <div class="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-[15px] text-white md:mt-6">
+      <p class="hero__status" data-open-status data-opens={contacts.opens} data-closes={contacts.closes}>
+        <span class="hero__dot" aria-hidden="true"></span>
+        <span data-status-text>Щодня {contacts.opens} — {contacts.closes}</span>
+      </p>
+      <p class="flex items-center gap-2">
+        <Icon name="check" size={18} class="shrink-0" />
+        Без дзвінків — запис онлайн
+      </p>
     </div>
   </div>
 </section>
 
 <style>
-  .badge {
+  /* Фото заходить під прозору шапку: секція піднята на висоту шапки */
+  .hero {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    min-height: max(560px, 100vh);
+    min-height: clamp(560px, 100svh, 960px);
+    margin-top: calc(-1 * var(--header-h));
+    overflow: hidden;
+    background: #000;
+    color: #fff;
+  }
+  .hero__media,
+  .hero__scrim {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+  .hero__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: hero-zoom 1.8s var(--ease) both;
+  }
+  /* Рівномірне затемнення (без градієнтів): білий текст читається навіть над світлими ділянками */
+  .hero__scrim {
+    background: rgb(0 0 0 / 0.55);
+  }
+
+  .hero__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding-top: calc(var(--header-h) + 32px);
+    padding-bottom: 40px;
+  }
+
+  .hero__badge {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     min-height: 36px;
     padding: 0 16px 0 14px;
     border-radius: 999px;
-    background: var(--card);
-    color: var(--text);
+    background: rgb(255 255 255 / 0.14);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    color: #fff;
     font-size: 14px;
     font-weight: 500;
     transition: transform 0.3s var(--ease);
   }
   @media (hover: hover) {
-    .badge:hover {
+    .hero__badge:hover {
       transform: scale(1.02);
     }
   }
 
-  .open-card {
-    position: absolute;
-    left: 12px;
-    bottom: 12px;
-    display: flex;
+  /* Маячок: зелений і блимає, коли відкрито; помаранчевий, коли зачинено */
+  .hero__status {
+    display: inline-flex;
     align-items: center;
-    gap: 12px;
-    max-width: calc(100% - 24px);
-    padding: 14px 18px 14px 16px;
-    border-radius: 20px;
-    background: var(--float);
-    color: var(--text);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter: saturate(180%) blur(20px);
-    box-shadow: 0 12px 32px rgb(0 0 0 / 0.14);
-    animation: float-in 0.9s var(--ease) 0.35s both;
+    gap: 10px;
+    font-weight: 500;
   }
-  /* Маячок «відкрито»: точка блимає, від неї розходиться кільце */
-  .open-card__dot {
+  .hero__dot {
     position: relative;
     flex: none;
     width: 10px;
     height: 10px;
     border-radius: 999px;
+    background: rgb(255 255 255 / 0.7);
+  }
+  .hero__status[data-state="open"] .hero__dot {
     background: #30d158;
     animation: dot-blink 2s ease-in-out infinite;
   }
-  .open-card__dot::after {
+  .hero__status[data-state="open"] .hero__dot::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -109,24 +166,24 @@ import { minPrice } from "../data/services";
     background: #30d158;
     animation: dot-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
   }
+  .hero__status[data-state="closed"] .hero__dot {
+    background: #ff9f0a;
+  }
 
   @media (min-width: 768px) {
-    .open-card {
-      left: 24px;
-      bottom: 24px;
+    .hero__content {
+      padding-bottom: 64px;
     }
   }
   @media (min-width: 1024px) {
-    .open-card {
-      left: -32px;
-      bottom: 40px;
+    .hero__content {
+      padding-bottom: 88px;
     }
   }
 
-  @keyframes float-in {
+  @keyframes hero-zoom {
     from {
-      opacity: 0;
-      transform: translateY(16px);
+      transform: scale(1.06);
     }
   }
   @keyframes dot-blink {
@@ -146,3 +203,7 @@ import { minPrice } from "../data/services";
     }
   }
 </style>
+
+<script>
+  import "../scripts/open-status";
+</script>
