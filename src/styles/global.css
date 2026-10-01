@@ -105,6 +105,16 @@
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    /* Сторінка не їздить убік на телефонах: ні через переповнення, ні через «пружину»,
+       ні через наближення подвійним тапом. Зум двома пальцями лишається (доступність). */
+    overflow-x: hidden;
+    overflow-x: clip;
+    overscroll-behavior-x: none;
+    touch-action: manipulation;
+  }
+
+  body {
+    overflow-x: clip;
   }
 
   body {
@@ -203,6 +213,7 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
+    max-width: 100%;
     min-height: 44px;
     padding: 0 22px;
     border-radius: 999px;
