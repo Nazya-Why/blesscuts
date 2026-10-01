@@ -212,16 +212,15 @@ const { overHero = false } = Astro.props;
   const header = document.querySelector<HTMLElement>("[data-site-header]");
   const hero = document.querySelector<HTMLElement>("[data-hero]");
   if (header && hero) {
-    // scroll і так приходить не частіше за кадр; перевірка — одне вимірювання
-    const update = () => {
-      header.classList.toggle("is-over-hero", hero.getBoundingClientRect().bottom > header.offsetHeight);
-    };
-    addEventListener("scroll", update, { passive: true });
-    addEventListener("resize", update);
-    update();
+    // IntersectionObserver працює асинхронно й не змушує браузер перераховувати розкладку.
+    // Верхні 64 px вікна — зона шапки: поки фото заходить нижче за неї, шапка прозора.
+    new IntersectionObserver(([entry]) => header.classList.toggle("is-over-hero", entry.isIntersecting), {
+      rootMargin: "-64px 0px 0px 0px",
+    }).observe(hero);
   } else {
     header?.classList.remove("is-over-hero");
   }
+
   const menu = document.getElementById("mobile-menu") as HTMLDialogElement | null;
   const opener = document.querySelector<HTMLButtonElement>("[data-menu-open]");
 

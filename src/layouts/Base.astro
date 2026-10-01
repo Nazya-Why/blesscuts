@@ -111,6 +111,7 @@ const jsonLd = {
     <meta name="twitter:image" content={ogImage} />
 
     <Font cssVariable="--font-onest" />
+    <slot name="head" />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body>

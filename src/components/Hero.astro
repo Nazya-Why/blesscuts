@@ -1,16 +1,18 @@
 ---
-// Перший екран: фото на весь екран із затемненням, поверх — білий текст і кнопки.
-// Альбомні екрани отримують широкий кадр залу (hero-wide), портретні — вертикальне фото майстра (hero).
+// Перший екран: фон на весь екран із затемненням, поверх — білий текст і кнопки.
+// Портретні екрани (телефони): фоном вертикальне відео залу (public/video/hero.mp4).
+// Альбомні (ноутбуки): фоном широке фото залу (hero-wide), а відео — вертикальна картка праворуч.
 import type { ImageMetadata } from "astro";
 import { getImage } from "astro:assets";
 import Icon from "./Icon.astro";
 import { asset } from "../lib/images";
+import { heroPoster } from "../lib/hero-media";
+import { withBase } from "../lib/url";
 import { contacts, external, reviewsLabel } from "../data/contacts";
 import { barbers } from "../data/barbers";
 import { minPrice } from "../data/services";
 
 const wide = asset("hero-wide");
-const tall = asset("hero");
 
 async function variants(image: ImageMetadata, widths: number[]) {
   const fit = widths.filter((w) => w <= image.width);
@@ -21,31 +23,38 @@ async function variants(image: ImageMetadata, widths: number[]) {
 }
 
 const wideSet = wide ? await variants(wide, [960, 1280, 1600]) : null;
-const tallSet = tall ? await variants(tall, [540, 720, 900, 1080]) : null;
+const poster = await heroPoster();
+// На портретних екранах <img> лишається порожнім пікселем — широке фото там не завантажується
+const blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 ---
 
 <section class="hero on-black" data-hero aria-labelledby="hero-title">
   {
-    tallSet && (
+    wideSet && (
       <picture class="hero__media">
-        {wideSet && <source media="(orientation: landscape)" type="image/avif" srcset={wideSet.avif} sizes="100vw" />}
-        {wideSet && <source media="(orientation: landscape)" type="image/webp" srcset={wideSet.webp} sizes="100vw" />}
-        {wideSet && <source media="(orientation: landscape)" srcset={wideSet.jpg.srcSet.attribute} sizes="100vw" />}
-        <source type="image/avif" srcset={tallSet.avif} sizes="100vw" />
-        <source type="image/webp" srcset={tallSet.webp} sizes="100vw" />
-        <img
-          src={tallSet.jpg.src}
-          srcset={tallSet.jpg.srcSet.attribute}
-          sizes="100vw"
-          alt="Барбер стриже клієнта в залі Bless Cuts"
-          width={tall?.width}
-          height={tall?.height}
-          fetchpriority="high"
-          decoding="async"
-        />
+        <source media="(orientation: landscape)" type="image/avif" srcset={wideSet.avif} sizes="100vw" />
+        <source media="(orientation: landscape)" type="image/webp" srcset={wideSet.webp} sizes="100vw" />
+        <source media="(orientation: landscape)" srcset={wideSet.jpg.srcSet.attribute} sizes="100vw" />
+        <img src={blank} alt="" width={wide?.width} height={wide?.height} fetchpriority="high" decoding="async" />
       </picture>
     )
   }
+
+  <!-- Відео без звуку; запускає скрипт після завантаження сторінки (не при «зменшити рух» чи економії трафіку) -->
+  <video
+    class="hero__video"
+    muted
+    loop
+    playsinline
+    preload="none"
+    poster={poster?.src}
+    aria-hidden="true"
+    tabindex="-1"
+    data-hero-video
+  >
+    <source src={withBase("video/hero.mp4")} type="video/mp4" />
+  </video>
+
   <div class="hero__scrim" aria-hidden="true"></div>
 
   <div class="wrap hero__content">
@@ -93,16 +102,52 @@ const tallSet = tall ? await variants(tall, [540, 720, 900, 1080]) : null;
     color: #fff;
   }
   .hero__media,
+  .hero__video,
   .hero__scrim {
     position: absolute;
     inset: 0;
     z-index: -1;
+  }
+  .hero__media {
+    display: none;
   }
   .hero__media img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     animation: hero-zoom 1.8s var(--ease) both;
+  }
+  /* Портрет: відео — фон на весь екран */
+  .hero__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #000;
+  }
+
+  /* Альбом: фоном фото; відео ховається або стає вертикальною карткою праворуч */
+  @media (orientation: landscape) {
+    .hero__media {
+      display: block;
+    }
+    .hero__video {
+      display: none;
+    }
+  }
+  @media (orientation: landscape) and (min-width: 1024px) and (min-height: 640px) {
+    .hero__video {
+      display: block;
+      inset: auto;
+      right: max(24px, calc((100% - 1200px) / 2));
+      bottom: 88px;
+      z-index: 1;
+      width: auto;
+      height: min(62vh, 560px);
+      aspect-ratio: 9 / 16;
+      border: 1px solid rgb(255 255 255 / 0.18);
+      border-radius: 28px;
+      box-shadow: 0 30px 80px rgb(0 0 0 / 0.5);
+    }
   }
   /* Рівномірне затемнення (без градієнтів): білий текст читається навіть над світлими ділянками */
   .hero__scrim {
@@ -125,9 +170,7 @@ const tallSet = tall ? await variants(tall, [540, 720, 900, 1080]) : null;
     min-height: 36px;
     padding: 0 16px 0 14px;
     border-radius: 999px;
-    background: rgb(255 255 255 / 0.14);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter: saturate(180%) blur(20px);
+    background: rgb(255 255 255 / 0.16);
     color: #fff;
     font-size: 14px;
     font-weight: 500;
@@ -206,4 +249,46 @@ const tallSet = tall ? await variants(tall, [540, 720, 900, 1080]) : null;
 
 <script>
   import "../scripts/open-status";
+
+  // Відео першого екрана: вантажимо лише після сторінки (спершу видно обкладинку),
+  // граємо, тільки коли воно показане й видиме; поважаємо «зменшити рух» і економію трафіку.
+  const video = document.querySelector<HTMLVideoElement>("[data-hero-video]");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
+
+  if (video && !saveData) {
+    video.muted = true;
+    let onScreen = true;
+    let pageLoaded = false;
+
+    // Ті самі умови, що й у CSS: фон на портретних екранах або картка на великих альбомних
+    const shownQuery = window.matchMedia(
+      "(orientation: portrait), (orientation: landscape) and (min-width: 1024px) and (min-height: 640px)",
+    );
+
+    const sync = () => {
+      if (!pageLoaded) return;
+      const shown = shownQuery.matches;
+      if (shown && onScreen && !reducedMotion.matches) {
+        if (video.preload !== "auto") video.preload = "auto";
+        video.play().catch(() => {});
+      } else if (!video.paused) {
+        video.pause();
+      }
+    };
+
+    new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting;
+      sync();
+    }).observe(video);
+    reducedMotion.addEventListener("change", sync);
+    shownQuery.addEventListener("change", sync);
+
+    const start = () => {
+      pageLoaded = true;
+      sync();
+    };
+    if (document.readyState === "complete") start();
+    else addEventListener("load", start, { once: true });
+  }
 </script>
