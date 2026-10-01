@@ -34,7 +34,9 @@ npm run check      # перевірка типів
 | Файл | Що це | Пропорція |
 |---|---|---|
 | `src/assets/logo.png` | лого, біле на прозорому або чорному. Ставиться лише на чорне тло: футер і сертифікат | ≈ 840×500 |
-| `src/assets/video/hero.mp4` | відео першого екрана — фон на весь екран на всіх пристроях | 9:16, H.264, без звуку, до ~2 МБ |
+| `src/assets/video/hero.mp4` | відео першого екрана на телефонах (фон на весь екран) | 9:16, H.264, без звуку, до ~2 МБ |
+| `src/assets/video/hero-wide.mp4` | те саме відео для ноутбуків: центральна смуга, збільшена до 1920×1080 | 16:9, H.264, без звуку |
+| `src/assets/hero-video-wide.jpg` | обкладинка широкого відео (перший кадр) | 1920×1080 |
 | `src/assets/hero-video.jpg` | обкладинка відео (перший кадр), видно до запуску відео | 720×1280 |
 | `src/assets/about.jpg` | блок «Про нас» | 4:5 |
 | `src/assets/barbers/{photo}.jpg` | майстри, імена файлів з поля `photo` у `barbers.ts` | 7:8 |
@@ -57,6 +59,16 @@ ffmpeg -i нове.mp4 -vf "trim=end_frame=225,setpts=PTS-STARTPTS" -an -c:v lib
 
 ```bash
 ffmpeg -i нове.mp4 -frames:v 1 -q:v 2 src/assets/hero-video.jpg
+```
+
+Широка версія для ноутбуків — центральна смуга 16:9 того самого відео, збільшена якісним алгоритмом:
+
+```bash
+ffmpeg -i нове.mp4 -vf "trim=end_frame=225,setpts=PTS-STARTPTS,crop=720:405:0:437,scale=1920:1080:flags=lanczos,unsharp=5:5:0.5:5:5:0" -an -c:v libx264 -pix_fmt yuv420p -preset slow -crf 23 -movflags +faststart src/assets/video/hero-wide.mp4
+```
+
+```bash
+ffmpeg -i src/assets/video/hero-wide.mp4 -frames:v 1 -q:v 2 src/assets/hero-video-wide.jpg
 ```
 
 ## Попередній перегляд на GitHub Pages

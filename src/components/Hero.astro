@@ -1,32 +1,40 @@
 ---
-// Перший екран: фоном на весь екран вертикальне відео залу (src/assets/video/hero.mp4) під затемненням,
-// поверх — білий текст і кнопки. На широких екранах відео заповнює ширину й обрізається зверху та знизу.
+// Перший екран: фоном на весь екран відео залу під затемненням, поверх — білий текст і кнопки.
+// Портретні екрани (телефони): вертикальне відео hero.mp4 (720×1280).
+// Альбомні (ноутбуки): hero-wide.mp4 — центральна смуга того самого відео, заздалегідь збільшена
+// до 1920×1080 (Lanczos + різкість) і стиснута м'якше: чіткіше, ніж розтягування браузером.
 import Icon from "./Icon.astro";
-import { heroPoster } from "../lib/hero-media";
-// ?url — Vite кладе файл у /_astro/ з хешем вмісту в назві: нова версія відео не застрягне в кеші телефона
+import { heroPoster, heroPosterWide } from "../lib/hero-media";
+// ?url — Vite кладе файл у /_astro/ з хешем вмісту в назві: нова версія відео не застрягне в кеші
 import heroVideo from "../assets/video/hero.mp4?url";
+import heroVideoWide from "../assets/video/hero-wide.mp4?url";
 import { contacts, external, reviewsLabel } from "../data/contacts";
 import { barbers } from "../data/barbers";
 import { minPrice } from "../data/services";
 
-const poster = await heroPoster();
+const [poster, posterWide] = await Promise.all([heroPoster(), heroPosterWide()]);
 ---
 
 <section class="hero on-black" data-hero aria-labelledby="hero-title">
-  <!-- Відео без звуку; запускає скрипт після завантаження сторінки (не при «зменшити рух» чи економії трафіку) -->
+  <!-- Обкладинка — перший кадр відповідного відео; видно, доки відео не почне грати -->
+  <picture class="hero__poster" aria-hidden="true">
+    {posterWide && <source media="(orientation: landscape)" type="image/webp" srcset={posterWide.srcSet.attribute} sizes="100vw" />}
+    {poster && <img src={poster.src} alt="" width="720" height="1280" fetchpriority="high" decoding="async" />}
+  </picture>
+
+  <!-- Відео без звуку; джерело під орієнтацію екрана й запуск — у скрипті нижче -->
   <video
     class="hero__video"
     muted
     loop
     playsinline
     preload="none"
-    poster={poster?.src}
     aria-hidden="true"
     tabindex="-1"
     data-hero-video
-  >
-    <source src={heroVideo} type="video/mp4" />
-  </video>
+    data-src-portrait={heroVideo}
+    data-src-landscape={heroVideoWide}
+  ></video>
 
   <div class="hero__scrim" aria-hidden="true"></div>
 
@@ -74,18 +82,19 @@ const poster = await heroPoster();
     background: #000;
     color: #fff;
   }
+  .hero__poster,
   .hero__video,
   .hero__scrim {
     position: absolute;
     inset: 0;
     z-index: -1;
   }
-  /* Відео — фон на весь екран на будь-якому пристрої */
+  /* Відео — фон на весь екран на будь-якому пристрої; під ним обкладинка */
+  .hero__poster img,
   .hero__video {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    background: #000;
   }
   /* Рівномірне затемнення (без градієнтів): білий текст читається навіть над світлими ділянками */
   .hero__scrim {
@@ -196,10 +205,15 @@ const poster = await heroPoster();
     let onScreen = true;
     let pageLoaded = false;
 
+    // Телефон (портрет) — вертикальне відео, ноутбук (альбом) — широке 1080p
+    const landscape = window.matchMedia("(orientation: landscape)");
+    const wantedSrc = () => (landscape.matches ? video.dataset.srcLandscape : video.dataset.srcPortrait) ?? "";
+
     const sync = () => {
       if (!pageLoaded) return;
       if (onScreen && !reducedMotion.matches) {
-        if (video.preload !== "auto") video.preload = "auto";
+        const src = wantedSrc();
+        if (video.getAttribute("src") !== src) video.src = src;
         video.play().catch(() => {});
       } else if (!video.paused) {
         video.pause();
@@ -211,6 +225,7 @@ const poster = await heroPoster();
       sync();
     }).observe(video);
     reducedMotion.addEventListener("change", sync);
+    landscape.addEventListener("change", sync);
 
     // Запуск декодера відео — важка операція; відкладаємо її, поки сторінка «оживає».
     // До старту видно обкладинку — той самий перший кадр, тож затримки не помітно.

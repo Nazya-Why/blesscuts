@@ -17,17 +17,18 @@ import StickyCta from "../components/StickyCta.astro";
 import { contacts } from "../data/contacts";
 import { barbers } from "../data/barbers";
 import { minPrice } from "../data/services";
-import { heroPoster } from "../lib/hero-media";
+import { heroPoster, heroPosterWide } from "../lib/hero-media";
 
-// Найбільший елемент першого екрана — обкладинка відео: вантажимо її першою
-const poster = await heroPoster();
+// Найбільший елемент першого екрана — обкладинка відео: вантажимо її першою (своя для кожної орієнтації)
+const [poster, posterWide] = await Promise.all([heroPoster(), heroPosterWide()]);
 
 const title = "Bless Cuts — барбершоп у центрі Львова | Чоловіча стрижка";
 const description = `Барбершоп Bless Cuts у центрі Львова, ${contacts.address}. Чоловічі стрижки від ${minPrice("Стрижка голови")} ₴, борода, камуфлювання сивини. ${barbers.length} майстрів, ${contacts.rating} у Google. Онлайн-запис щодня ${contacts.opens}–${contacts.closes}.`;
 ---
 
 <Base title={title} description={description}>
-  {poster && <link slot="head" rel="preload" as="image" href={poster.src} fetchpriority="high" />}
+  {poster && <link slot="head" rel="preload" as="image" href={poster.src} fetchpriority="high" media="(orientation: portrait)" />}
+  {posterWide && <link slot="head" rel="preload" as="image" imagesrcset={posterWide.srcSet.attribute} imagesizes="100vw" fetchpriority="high" media="(orientation: landscape)" />}
   <a href="#main" class="skip-link">Перейти до вмісту</a>
 
   <div class="page" id="top">
