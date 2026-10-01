@@ -34,7 +34,7 @@ npm run check      # перевірка типів
 | Файл | Що це | Пропорція |
 |---|---|---|
 | `src/assets/logo.png` | лого, біле на прозорому або чорному. Ставиться лише на чорне тло: футер і сертифікат | ≈ 840×500 |
-| `public/video/hero.mp4` | відео першого екрана: на телефонах — фон, на ноутбуках — картка праворуч | 9:16, H.264, без звуку, до ~2 МБ |
+| `src/assets/video/hero.mp4` | відео першого екрана: на телефонах — фон, на ноутбуках — картка праворуч | 9:16, H.264, без звуку, до ~2 МБ |
 | `src/assets/hero-video.jpg` | обкладинка відео (перший кадр), видно до запуску відео | 720×1280 |
 | `src/assets/hero-wide.jpg` | головне фото на ноутбуках | горизонтальне, бажано ≥2400 px завширшки |
 | `src/assets/about.jpg` | блок «Про нас» | 4:5 |
@@ -47,13 +47,13 @@ npm run check      # перевірка типів
 Щоб замінити відео першого екрана, нове відео (вертикальне 9:16) треба стиснути й зняти з нього обкладинку, наприклад через [ffmpeg](https://ffmpeg.org):
 
 ```bash
-ffmpeg -i нове.mp4 -an -c:v libx264 -pix_fmt yuv420p -preset slow -crf 27 -movflags +faststart public/video/hero.mp4
+ffmpeg -i нове.mp4 -an -c:v libx264 -pix_fmt yuv420p -preset slow -crf 27 -movflags +faststart src/assets/video/hero.mp4
 ```
 
-Щоб повтор був без помітного шва, перша секунда плавно накладається на останню (приклад для відео на 10 с: `PTS+8` = 10 − 2 × 1 с):
+Щоб повтор був без шва, відео треба підрізати в той момент, де кадр збігається з першим. У нинішнього відео це 225-й кадр (9,375 с):
 
 ```bash
-ffmpeg -i нове.mp4 -filter_complex "[0:v]split[a][b];[a]trim=0:1,setpts=PTS-STARTPTS,format=yuva420p,fade=t=in:st=0:d=1:alpha=1,setpts=PTS+8/TB[head];[b]trim=start=1:end=10,setpts=PTS-STARTPTS[tail];[tail][head]overlay=eof_action=pass,format=yuv420p[out]" -map "[out]" -an -c:v libx264 -preset slow -crf 27 -movflags +faststart public/video/hero.mp4
+ffmpeg -i нове.mp4 -vf "trim=end_frame=225,setpts=PTS-STARTPTS" -an -c:v libx264 -pix_fmt yuv420p -preset slow -crf 27 -movflags +faststart src/assets/video/hero.mp4
 ```
 
 ```bash

@@ -1,13 +1,14 @@
 ---
 // Перший екран: фон на весь екран із затемненням, поверх — білий текст і кнопки.
-// Портретні екрани (телефони): фоном вертикальне відео залу (public/video/hero.mp4).
+// Портретні екрани (телефони): фоном вертикальне відео залу (src/assets/video/hero.mp4).
 // Альбомні (ноутбуки): фоном широке фото залу (hero-wide), а відео — вертикальна картка праворуч.
 import type { ImageMetadata } from "astro";
 import { getImage } from "astro:assets";
 import Icon from "./Icon.astro";
 import { asset } from "../lib/images";
 import { heroPoster } from "../lib/hero-media";
-import { withBase } from "../lib/url";
+// ?url — Vite кладе файл у /_astro/ з хешем вмісту в назві: нова версія відео не застрягне в кеші телефона
+import heroVideo from "../assets/video/hero.mp4?url";
 import { contacts, external, reviewsLabel } from "../data/contacts";
 import { barbers } from "../data/barbers";
 import { minPrice } from "../data/services";
@@ -52,7 +53,7 @@ const blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAA
     tabindex="-1"
     data-hero-video
   >
-    <source src={withBase("video/hero.mp4")} type="video/mp4" />
+    <source src={heroVideo} type="video/mp4" />
   </video>
 
   <div class="hero__scrim" aria-hidden="true"></div>
