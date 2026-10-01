@@ -1,0 +1,72 @@
+---
+import Photo from "./Photo.astro";
+import { contacts, reviewsLabel } from "../data/contacts";
+import { barbers } from "../data/barbers";
+import { levels } from "../data/services";
+
+// Конкретні причини замість загального тексту — усе з даних, без «води»
+const reasons = [
+  { title: `${contacts.rating} у Google`, text: `${reviewsLabel} відгуків від клієнтів, які вже були в нас.` },
+  {
+    title: `${barbers.length} майстрів`,
+    text: `${levels.length} рівнів — від молодшого майстра до арт-директора. Обираєш досвід під свій бюджет.`,
+  },
+  { title: "Центр Львова", text: `${contacts.address} — історичний центр, легко дістатися пішки.` },
+  { title: "Запис без дзвінків", text: "Майстер, послуга й вільний час — онлайн, у будь-який час доби." },
+];
+---
+
+<section id="why" class="section bg-section" aria-labelledby="why-title">
+  <div class="wrap grid items-center gap-8 md:grid-cols-2 md:gap-12 lg:gap-20">
+    <Photo
+      src="about"
+      alt="Зал барбершопу Bless Cuts з барберськими кріслами"
+      widths={[400, 560, 680, 800]}
+      sizes="(min-width: 1248px) 560px, (min-width: 768px) 45vw, calc(100vw - 32px)"
+      class="reveal order-2 aspect-4/5 rounded-[28px] md:order-none"
+    />
+
+    <div class="reveal" style="--i:1">
+      <p class="eyebrow">Чому Bless Cuts</p>
+      <h2 id="why-title" class="h2 mt-3">Тут не тільки про стрижку.</h2>
+      <p class="lead mt-5">
+        Традиційні техніки й сучасний барберинг — з {contacts.founded} року в самому центрі Львова.
+      </p>
+
+      <ol class="mt-8 grid gap-3 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+        {
+          reasons.map((r, i) => (
+            <li class="reason">
+              <h3 class="flex items-baseline gap-3 text-[18px] leading-tight font-semibold tracking-[-0.02em] md:text-[19px]">
+                <span class="reason__num" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+                {r.title}
+              </h3>
+              <p class="mt-1.5 text-[15px] leading-normal text-ink-3">{r.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .reason {
+    padding: 16px 18px;
+    border-radius: 20px;
+    background: var(--card-on-section);
+  }
+  @media (min-width: 768px) {
+    .reason {
+      padding: 20px;
+      border-radius: 22px;
+    }
+  }
+  .reason__num {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+  }
+</style>

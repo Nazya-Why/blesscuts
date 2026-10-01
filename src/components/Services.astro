@@ -1,15 +1,23 @@
 ---
-import { levels, services } from "../data/services";
+import Icon from "./Icon.astro";
+import { levels, minPrice, services } from "../data/services";
 import { contacts, external } from "../data/contacts";
 import { formatPrice } from "../lib/format";
 
-// Для кожного рівня — лише ті послуги, що на ньому є
-const panels = levels.map((level, i) => ({
-  ...level,
-  rows: services
-    .map((s) => ({ name: s.name, note: s.note, price: s.prices[i] }))
-    .filter((r): r is { name: string; note: string; price: string } => r.price !== null),
-}));
+type Row = { name: string; note: string; price: string; popular: boolean };
+
+// Для кожного рівня — лише ті послуги, що на ньому є; популярні першими
+const panels = levels.map((level, i) => {
+  const rows = services
+    .map((s) => ({ name: s.name, note: s.note, price: s.prices[i], popular: Boolean(s.popular) }))
+    .filter((r): r is Row => r.price !== null);
+  return { ...level, rows: [...rows.filter((r) => r.popular), ...rows.filter((r) => !r.popular)] };
+});
+
+// Швидка відповідь «скільки коштує» ще до вибору рівня
+const popular = services
+  .filter((s) => s.popular)
+  .map((s) => ({ name: s.name, from: formatPrice(String(minPrice(s.name))) }));
 ---
 
 <section id="services" class="section" aria-labelledby="services-title">
@@ -17,11 +25,27 @@ const panels = levels.map((level, i) => ({
     <div class="mx-auto max-w-[880px]">
       <div class="reveal text-center">
         <p class="eyebrow">Послуги та ціни</p>
-        <h2 id="services-title" class="h2 mt-3">Обери рівень майстра.</h2>
+        <h2 id="services-title" class="h2 mt-3">Скільки коштує стрижка.</h2>
         <p class="lead mx-auto mt-4 max-w-[40rem] text-balance">Ціна залежить від досвіду барбера. Усі ціни в гривнях.</p>
       </div>
 
-      <div class="reveal mt-8 md:mt-12" style="--i:1" data-tabs>
+      <ul class="reveal mt-8 grid grid-cols-2 gap-3 md:mt-12 md:grid-cols-4" style="--i:1" aria-label="Найпопулярніші послуги">
+        {
+          popular.map((p) => (
+            <li class="popular">
+              <span class="text-[14px] leading-snug text-ink-2">{p.name}</span>
+              <span class="mt-2 block text-[22px] leading-tight font-bold tracking-[-0.02em] tabular-nums md:text-[24px]">
+                <span class="text-[15px] font-semibold tracking-normal">від </span>
+                {p.from}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="reveal mt-10 text-center text-[17px] font-semibold md:mt-12">Точна ціна — за рівнем майстра:</p>
+
+      <div class="reveal mt-4" style="--i:1" data-tabs>
         <div class="flex justify-center">
           <div class="tablist" role="tablist" aria-label="Рівень майстра">
             {
@@ -47,7 +71,7 @@ const panels = levels.map((level, i) => ({
             <div class="panel" role="tabpanel" id={`panel-${p.id}`} aria-labelledby={`tab-${p.id}`} hidden={i !== 0}>
               <ul class="price-list">
                 {p.rows.map((r) => (
-                  <li class="price-row">
+                  <li class="price-row" data-extra={r.popular ? undefined : ""}>
                     <span class="min-w-0">
                       <span class="block font-medium">{r.name}</span>
                       {r.note && <span class="mt-0.5 block text-[14px] text-ink-2">{r.note}</span>}
@@ -56,6 +80,11 @@ const panels = levels.map((level, i) => ({
                   </li>
                 ))}
               </ul>
+              <button type="button" class="price-toggle" aria-expanded="false" data-price-toggle>
+                <span data-label-more>Показати весь прайс · ще {p.rows.filter((r) => !r.popular).length}</span>
+                <span data-label-less hidden>Згорнути прайс</span>
+                <Icon name="plus" size={18} class="price-toggle__icon shrink-0" />
+              </button>
               <div class="panel__foot">
                 <p class="text-[15px] text-ink-2">
                   Майстри цього рівня: <span class="font-semibold text-ink">{p.barbers}</span>
@@ -182,6 +211,45 @@ const panels = levels.map((level, i) => ({
     white-space: nowrap;
   }
 
+  /* Згорнутий прайс: лише популярні рядки. Без JS прайс показується повністю. */
+  :global(.js) [data-tabs]:not(.is-expanded) .price-row[data-extra] {
+    display: none;
+  }
+  .price-toggle {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-height: 52px;
+    padding: 0 16px;
+    border-radius: 18px;
+    border-top: 1px solid var(--border);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: left;
+    transition: background-color 0.3s var(--ease);
+  }
+  :global(.js) .price-toggle {
+    display: flex;
+  }
+  .price-toggle:hover {
+    background: var(--card);
+  }
+  [data-tabs].is-expanded :global(.price-toggle__icon) {
+    transform: rotate(45deg);
+  }
+  :global(.price-toggle__icon) {
+    transition: transform 0.35s var(--ease);
+  }
+
+  .popular {
+    padding: 18px;
+    border-radius: 20px;
+    background: var(--card);
+  }
+
   .panel__foot {
     display: flex;
     flex-direction: column;
@@ -201,6 +269,9 @@ const panels = levels.map((level, i) => ({
     .price-row + .price-row::before {
       left: 20px;
       right: 20px;
+    }
+    .price-toggle {
+      padding: 0 20px;
     }
     .panel__foot {
       flex-direction: row;
@@ -239,6 +310,19 @@ const panels = levels.map((level, i) => ({
         list.scrollTo({ left: tab.offsetLeft - (list.clientWidth - tab.offsetWidth) / 2, behavior: "smooth" });
       }
     }
+
+    // «Показати весь прайс» — одна кнопка в кожній панелі, стан спільний для всіх рівнів
+    const toggles = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-price-toggle]"));
+    toggles.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const expanded = root.classList.toggle("is-expanded");
+        toggles.forEach((t) => {
+          t.setAttribute("aria-expanded", String(expanded));
+          t.querySelector<HTMLElement>("[data-label-more]")!.hidden = expanded;
+          t.querySelector<HTMLElement>("[data-label-less]")!.hidden = !expanded;
+        });
+      });
+    });
 
     tabs.forEach((tab, i) => {
       tab.addEventListener("click", () => select(i, false));

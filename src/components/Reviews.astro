@@ -1,44 +1,52 @@
 ---
 import Icon from "./Icon.astro";
-import { contacts, external } from "../data/contacts";
+import { contacts, external, reviewsLabel } from "../data/contacts";
 ---
 
-<article class="reviews reveal" style="--i:1" aria-labelledby="reviews-title">
-  <h2 class="eyebrow" id="reviews-title">Відгуки</h2>
+<section id="reviews" class="section bg-section" aria-labelledby="reviews-title">
+  <div class="wrap">
+    <div class="reviews reveal">
+      <p class="eyebrow">Відгуки</p>
 
-  <p class="mt-6 leading-none font-bold md:mt-8">
-    <span class="text-[96px] tracking-[-0.05em] tabular-nums md:text-[128px]">{contacts.rating}</span>
-    <span class="ml-1 text-[28px] tracking-[-0.02em] text-ink-2 md:ml-2 md:text-[34px]">з 5</span>
-  </p>
+      <p class="mt-6 flex items-baseline justify-center gap-2 leading-none font-bold md:mt-8" aria-hidden="true">
+        <span class="text-[96px] tracking-[-0.05em] tabular-nums md:text-[144px]">{contacts.rating}</span>
+        <span class="text-[28px] tracking-[-0.02em] text-ink-2 md:text-[36px]">з 5</span>
+      </p>
 
-  <div class="mt-5 flex gap-1 text-ink" aria-hidden="true">
-    {Array.from({ length: 5 }, () => <Icon name="star" size={22} filled />)}
+      <div class="mt-5 flex justify-center gap-1 text-ink" aria-hidden="true">
+        {Array.from({ length: 5 }, () => <Icon name="star" size={24} filled />)}
+      </div>
+
+      <h2 id="reviews-title" class="h3 mt-6">
+        <span class="sr-only">Оцінка {contacts.rating} з 5 · </span>{reviewsLabel} відгуків у Google.
+      </h2>
+      <p class="mx-auto mt-3 max-w-[30rem] text-[17px] leading-normal text-ink-3">
+        Середня оцінка від клієнтів, які вже були в Bless Cuts. Прочитай, що вони пишуть, — і переконайся сам.
+      </p>
+
+      <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+        <a href={contacts.bookingUrl} {...external} class="btn btn-primary btn-lg">Записатися онлайн</a>
+        <a href={contacts.mapsUrl} {...external} class="btn btn-secondary btn-lg">
+          Читати відгуки <Icon name="arrow-up-right" size={18} />
+        </a>
+      </div>
+    </div>
   </div>
-
-  <p class="mt-5 max-w-[26rem] text-[17px] leading-normal text-ink-3">
-    Середня оцінка Bless Cuts від клієнтів у Google&nbsp;Maps.
-  </p>
-
-  <div class="mt-auto pt-6">
-    <a href={contacts.mapsUrl} {...external} class="link-arrow">
-      Читати відгуки <Icon name="arrow" size={18} />
-    </a>
-  </div>
-</article>
+</section>
 
 <style>
   .reviews {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 32px 24px 24px;
+    padding: 40px 24px;
     border-radius: 28px;
-    background: var(--card);
+    background: var(--card-on-section);
     text-align: center;
+  }
+  .reviews .btn-secondary {
+    background: var(--section);
   }
   @media (min-width: 768px) {
     .reviews {
-      padding: 48px 48px 36px;
+      padding: 64px 48px;
       border-radius: 32px;
     }
   }

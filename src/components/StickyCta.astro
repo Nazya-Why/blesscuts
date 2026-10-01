@@ -1,0 +1,69 @@
+---
+import { contacts, external } from "../data/contacts";
+---
+
+<!--
+  Кнопка запису внизу екрана на телефонах і планшетах.
+  Видима, коли кнопки hero вже прокручені, і ховається біля футера, де є своя кнопка.
+-->
+<div class="sticky-cta" data-sticky-cta>
+  <a href={contacts.bookingUrl} {...external} class="btn btn-primary btn-lg w-full" tabindex="-1">Записатися онлайн</a>
+</div>
+
+<style>
+  .sticky-cta {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    z-index: 30;
+    padding: 6px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--bg) 72%, transparent);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
+    transform: translateY(calc(100% + 24px));
+    visibility: hidden;
+    transition:
+      transform 0.45s var(--ease),
+      visibility 0s linear 0.45s;
+  }
+  .sticky-cta.is-visible {
+    transform: none;
+    visibility: visible;
+    transition: transform 0.45s var(--ease);
+  }
+  @media (min-width: 1024px) {
+    .sticky-cta {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const bar = document.querySelector<HTMLElement>("[data-sticky-cta]");
+  const link = bar?.querySelector("a");
+  const hero = document.querySelector("[data-hero-cta]");
+  const footer = document.querySelector(".site-footer");
+
+  if (bar && link && hero && footer && "IntersectionObserver" in window) {
+    let heroVisible = true;
+    let footerVisible = false;
+    const sync = () => {
+      const show = !heroVisible && !footerVisible;
+      bar.classList.toggle("is-visible", show);
+      // Прихована кнопка не повинна ловити фокус клавіатури
+      link.tabIndex = show ? 0 : -1;
+    };
+    new IntersectionObserver(([e]) => {
+      // Кнопки hero вище екрана — показуємо; нижче (ще не доскролили) — ні
+      heroVisible = e.isIntersecting || e.boundingClientRect.top > 0;
+      sync();
+    }).observe(hero);
+    new IntersectionObserver(([e]) => {
+      footerVisible = e.isIntersecting;
+      sync();
+    }).observe(footer);
+  }
+</script>

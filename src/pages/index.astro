@@ -3,19 +3,23 @@ import Base from "../layouts/Base.astro";
 import Header from "../components/Header.astro";
 import Hero from "../components/Hero.astro";
 import Stats from "../components/Stats.astro";
-import About from "../components/About.astro";
+import Why from "../components/Why.astro";
 import Services from "../components/Services.astro";
 import Barbers from "../components/Barbers.astro";
+import FirstVisit from "../components/FirstVisit.astro";
+import Reviews from "../components/Reviews.astro";
 import Gallery from "../components/Gallery.astro";
 import Certificate from "../components/Certificate.astro";
-import Reviews from "../components/Reviews.astro";
+import Faq from "../components/Faq.astro";
 import Contacts from "../components/Contacts.astro";
 import Footer from "../components/Footer.astro";
+import StickyCta from "../components/StickyCta.astro";
 import { contacts } from "../data/contacts";
+import { barbers } from "../data/barbers";
 import { minPrice } from "../data/services";
 
-const title = "Bless Cuts — барбершоп у центрі Львова";
-const description = `Барбершоп Bless Cuts у центрі Львова: ${contacts.address}. Чоловічі стрижки від ${minPrice("Стрижка голови")} ₴, борода, камуфлювання сивини. Щодня ${contacts.opens}–${contacts.closes}, онлайн-запис.`;
+const title = "Bless Cuts — барбершоп у центрі Львова | Чоловіча стрижка";
+const description = `Барбершоп Bless Cuts у центрі Львова, ${contacts.address}. Чоловічі стрижки від ${minPrice("Стрижка голови")} ₴, борода, камуфлювання сивини. ${barbers.length} майстрів, ${contacts.rating} у Google. Онлайн-запис щодня ${contacts.opens}–${contacts.closes}.`;
 ---
 
 <Base title={title} description={description}>
@@ -23,22 +27,22 @@ const description = `Барбершоп Bless Cuts у центрі Львова:
 
   <div class="page" id="top">
     <Header />
+    <!-- Логіка продажу: результат і довіра → послуги → майстер → докази → запис -->
     <main id="main">
       <Hero />
       <Stats />
-      <About />
+      <Why />
       <Services />
       <Barbers />
+      <FirstVisit />
+      <Reviews />
       <Gallery />
-      <section class="section pt-0" aria-label="Подарунковий сертифікат і відгуки">
-        <div class="wrap grid gap-3 md:gap-5 lg:grid-cols-2">
-          <Certificate />
-          <Reviews />
-        </div>
-      </section>
+      <Certificate />
+      <Faq />
       <Contacts />
     </main>
   </div>
 
   <Footer />
+  <StickyCta />
 </Base>

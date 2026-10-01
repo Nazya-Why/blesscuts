@@ -15,17 +15,19 @@ export type Service = {
   note: string;
   /** Ціни в гривнях у порядку `levels`; `null` — послуги на цьому рівні немає */
   prices: (string | null)[];
+  /** Найпопулярніше: показується першим, решта прайсу — за кнопкою «Показати весь прайс» */
+  popular?: boolean;
 };
 
 // Порядок цін: [art, amb, prime, senior, master, junior]
 // Примітка для власника: у старому прайсі були дублі «Камуфлювання бороди»
 // в Амбасадора (600/500) і Майстра (400/500) — взято перше значення. Перевірити перед запуском.
 export const services: Service[] = [
-  { name: "Стрижка голови",             note: "",                prices: ["1200","1000","900","800","600","500"] },
-  { name: "Стрижка бороди та вус",      note: "",                prices: ["800","800","600","600","500","400"] },
-  { name: "Стрижка голови + борода",    note: "Комплекс",        prices: ["1800","1600","1500","1300","1050","800"] },
+  { name: "Стрижка голови",             note: "",                prices: ["1200","1000","900","800","600","500"], popular: true },
+  { name: "Стрижка бороди та вус",      note: "",                prices: ["800","800","600","600","500","400"], popular: true },
+  { name: "Стрижка голови + борода",    note: "Комплекс",        prices: ["1800","1600","1500","1300","1050","800"], popular: true },
   { name: "Стрижка ножицями",           note: "Подовжена форма", prices: ["1500","1300","1100","1000","700","650"] },
-  { name: "Стрижка машинкою",           note: "",                prices: ["800","800","700","600","450","400"] },
+  { name: "Стрижка машинкою",           note: "",                prices: ["800","800","700","600","450","400"], popular: true },
   { name: "Стрижка машинкою + борода",  note: "Комплекс",        prices: ["1600",null,"1200","1000","750","650"] },
   { name: "Камуфлювання сивини",        note: "Голова",          prices: ["від 700","від 700","від 600","від 500","від 450","від 450"] },
   { name: "Камуфлювання бороди",        note: "",                prices: ["від 600","від 600","від 500","від 450","від 400","від 400"] },
@@ -44,6 +46,14 @@ export function minPrice(serviceName: string): number {
   const service = services.find((s) => s.name === serviceName);
   if (!service) throw new Error(`Немає послуги «${serviceName}» у services.ts`);
   return Math.min(...service.prices.flatMap((p) => (p ? amounts(p) : [])));
+}
+
+/** Ціна послуги на рівні майстра з певною назвою ("Арт-директор") або null */
+export function priceAt(serviceName: string, levelLabel: string): string | null {
+  const i = levels.findIndex((l) => l.label === levelLabel);
+  const service = services.find((s) => s.name === serviceName);
+  if (i === -1 || !service) throw new Error(`Немає рівня «${levelLabel}» або послуги «${serviceName}»`);
+  return service.prices[i];
 }
 
 /** Діапазон цін усього прайсу — для structured data */

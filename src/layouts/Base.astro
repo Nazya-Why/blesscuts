@@ -48,6 +48,7 @@ const jsonLd = {
     "@type": "AggregateRating",
     ratingValue: Number(contacts.rating.replace(",", ".")),
     bestRating: 5,
+    reviewCount: contacts.reviewCount,
   },
   sameAs: [contacts.instagramUrl, contacts.tiktokUrl],
   potentialAction: {

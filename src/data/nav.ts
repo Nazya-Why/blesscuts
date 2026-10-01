@@ -1,8 +1,8 @@
-// Меню-якорі: шапка, мобільне меню й футер
+// Меню-якорі: шапка й мобільне меню
 export const nav = [
-  { href: "#about",    label: "Про нас" },
-  { href: "#services", label: "Послуги" },
+  { href: "#why",      label: "Чому ми" },
+  { href: "#services", label: "Ціни" },
   { href: "#barbers",  label: "Майстри" },
-  { href: "#gallery",  label: "Галерея" },
+  { href: "#reviews",  label: "Відгуки" },
   { href: "#contacts", label: "Контакти" },
 ];

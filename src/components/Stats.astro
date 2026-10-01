@@ -1,12 +1,12 @@
 ---
 import Icon from "./Icon.astro";
-import { contacts, external } from "../data/contacts";
+import { contacts, external, reviewsLabel } from "../data/contacts";
 import { barbers } from "../data/barbers";
-import { minPrice } from "../data/services";
+import { levels, minPrice } from "../data/services";
 
 const stats = [
-  { prefix: "", value: contacts.rating, label: "Рейтинг у Google" },
-  { prefix: "", value: String(barbers.length), label: "Майстрів різного рівня" },
+  { prefix: "", value: contacts.rating, label: `${reviewsLabel} відгуків у Google` },
+  { prefix: "", value: String(barbers.length), label: `Майстрів, ${levels.length} рівнів досвіду` },
   { prefix: "від", value: `${minPrice("Стрижка голови")} ₴`, label: "Чоловіча стрижка" },
 ];
 ---

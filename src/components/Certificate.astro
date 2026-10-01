@@ -1,30 +1,51 @@
 ---
+import Icon from "./Icon.astro";
 import Logo from "./Logo.astro";
 import { contacts, external } from "../data/contacts";
 ---
 
-<article class="certificate on-black reveal" aria-labelledby="certificate-title">
-  <Logo widths={[260, 520]} sizes="260px" class="w-[220px] md:w-[260px]" />
-  <p class="eyebrow mt-6 text-[#a1a1a6] md:mt-8">Подарунковий сертифікат</p>
-  <h2 id="certificate-title" class="h3 mt-3 max-w-[20ch]">Подарунок, який оцінить кожен чоловік.</h2>
-  <p class="mt-4 max-w-[34rem] text-[17px] leading-normal text-[#c7c7cc]">
-    Будь-яка послуга барбершопу — від стрижки до догляду за бородою. Діє 4 місяці з моменту придбання.
-  </p>
-  <div class="mt-auto pt-8">
-    <a href={contacts.instagramUrl} {...external} class="btn btn-light btn-lg">Замовити сертифікат</a>
+<section id="certificate" class="section pt-0" aria-labelledby="certificate-title">
+  <div class="wrap">
+    <div class="certificate on-black reveal">
+      <div>
+        <p class="eyebrow text-[#a1a1a6]">Подарунковий сертифікат</p>
+        <h2 id="certificate-title" class="h2 mt-3">Не знаєш, що подарувати?</h2>
+        <p class="mt-4 max-w-[30rem] text-[17px] leading-normal text-[#c7c7cc] md:text-[19px]">
+          Подаруй чоловікові не річ, а новий образ. Сертифікат на будь-яку послугу — від стрижки до догляду за бородою.
+        </p>
+
+        <ul class="mt-6 flex flex-wrap gap-2">
+          <li class="perk"><Icon name="clock" size={18} class="shrink-0" /> Діє 4 місяці</li>
+          <li class="perk"><Icon name="scissors" size={18} class="shrink-0" /> Будь-яка послуга</li>
+        </ul>
+
+        <a href={contacts.instagramUrl} {...external} class="btn btn-light btn-lg mt-8">Замовити сертифікат</a>
+        <p class="mt-3 text-[14px] text-[#86868b]">Замовлення — в Instagram {contacts.instagram}</p>
+      </div>
+
+      <!-- Зображення самого сертифіката: декор, тому прихований від скрінрідерів -->
+      <div class="gift" aria-hidden="true">
+        <div class="gift__card gift__card--back"></div>
+        <div class="gift__card">
+          <Logo widths={[240, 480]} sizes="240px" class="mx-auto w-[60%] max-w-[240px]" alt="" />
+          <div class="gift__row">
+            <span>Подарунковий сертифікат</span>
+            <span>4 місяці</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-</article>
+</section>
 
 <style>
   .certificate {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: grid;
+    gap: 40px;
     padding: 32px 24px;
     border-radius: 28px;
     background: var(--brand-black);
     color: #ffffff;
-    text-align: center;
   }
   /* На чорній сторінці картка інакше зливається з фоном */
   :global(:root[data-theme="dark"]) .certificate {
@@ -35,10 +56,69 @@ import { contacts, external } from "../data/contacts";
       border: 1px solid #2c2c2e;
     }
   }
+
+  .perk {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.1);
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .gift {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    margin-inline: auto;
+    aspect-ratio: 1.6;
+  }
+  .gift__card {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 24px;
+    border: 1px solid #2c2c2e;
+    border-radius: 20px;
+    background: #141416;
+    box-shadow: 0 30px 60px rgb(0 0 0 / 0.5);
+    transform: rotate(-4deg);
+  }
+  .gift__card--back {
+    background: #0b0b0c;
+    transform: rotate(5deg) translate(4%, 4%);
+  }
+  .gift__row {
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #a1a1a6;
+  }
+
   @media (min-width: 768px) {
     .certificate {
-      padding: 48px;
+      padding: 56px;
       border-radius: 32px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .certificate {
+      grid-template-columns: 1.1fr 1fr;
+      align-items: center;
+      gap: 56px;
+      padding: 64px;
     }
   }
 </style>

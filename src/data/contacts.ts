@@ -19,9 +19,14 @@ export const contacts = {
   geo: { lat: 49.8440211, lng: 24.0309528 },
   mapsUrl: "https://www.google.com/maps/place/Bless+Cuts+barbershop/@49.8440211,24.0309528,15z/data=!4m6!3m5!1s0x473add407c519e13:0xf742003c8a5486fa!8m2!3d49.8440211!4d24.0309528!16s%2Fg%2F11h3yhhh9b",
   bookingUrl: "https://b769482.alteg.io/company/723076/menu?o=",
-  rating: "4,9",
+  /** Рейтинг і кількість відгуків у Google Maps (станом на 01.10.2026) — оновлювати час від часу */
+  rating: "5,0",
+  reviewCount: 1086,
   founded: 2023,
 };
+
+/** «1 000+» — кількість відгуків, округлена вниз до сотень, щоб напис не застарівав щотижня */
+export const reviewsLabel = `${new Intl.NumberFormat("uk-UA").format(Math.floor(contacts.reviewCount / 100) * 100)}+`;
 
 /** Маршрут у Google Maps до барбершопу */
 export const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${contacts.geo.lat},${contacts.geo.lng}`;

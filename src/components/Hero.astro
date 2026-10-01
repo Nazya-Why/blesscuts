@@ -1,7 +1,9 @@
 ---
 import Icon from "./Icon.astro";
 import Photo from "./Photo.astro";
-import { contacts, external } from "../data/contacts";
+import { contacts, external, reviewsLabel } from "../data/contacts";
+import { barbers } from "../data/barbers";
+import { minPrice } from "../data/services";
 ---
 
 <section class="pt-6 pb-10 md:pt-12 md:pb-14 lg:pt-16 lg:pb-16" aria-labelledby="hero-title">
@@ -9,20 +11,24 @@ import { contacts, external } from "../data/contacts";
     <div>
       <a href={contacts.mapsUrl} {...external} class="badge">
         <Icon name="star" size={15} filled />
-        <span>{contacts.rating} з 5 · Google відгуки</span>
+        <span><span class="font-semibold">{contacts.rating}</span> · {reviewsLabel} відгуків у Google</span>
       </a>
 
-      <h1 id="hero-title" class="h1 mt-5 md:mt-6">Тут не тільки<br class="hidden lg:inline" /> про стрижку.</h1>
+      <h1 id="hero-title" class="h1 mt-5 md:mt-6">Барбершоп у&nbsp;центрі Львова.</h1>
 
       <p class="lead mt-5 max-w-[36rem] md:mt-6">
-        Барбершоп у центрі Львова, де звичайна стрижка стає твоїм власним стилем. Традиційні техніки й сучасний
-        барберинг.
+        Чоловічі стрижки, борода й камуфлювання сивини на площі Данила Галицького. {barbers.length} майстрів,
+        стрижка&nbsp;— від&nbsp;{minPrice("Стрижка голови")}&nbsp;₴.
       </p>
 
-      <div class="mt-8 flex flex-wrap gap-3 md:mt-10">
+      <div class="mt-8 flex flex-wrap gap-3 md:mt-10" data-hero-cta>
         <a href={contacts.bookingUrl} {...external} class="btn btn-primary btn-lg">Записатися онлайн</a>
         <a href="#services" class="btn btn-secondary btn-lg">Ціни</a>
       </div>
+      <p class="mt-4 flex items-center gap-2 text-[15px] text-ink-2">
+        <Icon name="check" size={18} class="shrink-0" />
+        Без дзвінків — обираєш майстра, послугу й час онлайн.
+      </p>
     </div>
 
     <div class="relative">

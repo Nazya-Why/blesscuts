@@ -171,6 +171,7 @@
     font-weight: 700;
     letter-spacing: -0.035em;
     line-height: 1.04;
+    text-wrap: balance;
   }
 
   .h2 {

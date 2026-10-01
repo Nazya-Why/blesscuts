@@ -7,9 +7,11 @@ interface Props {
   widths: number[];
   sizes: string;
   class?: string;
+  /** Порожній alt — коли лого лише декор (наприклад, на зображенні сертифіката) */
+  alt?: string;
 }
 
-const { widths, sizes, class: className } = Astro.props;
+const { widths, sizes, class: className, alt = "Bless Cuts barbershop, засновано у 2023 році" } = Astro.props;
 const logo = asset("logo");
 const srcWidths = logo ? [...new Set(widths.map((w) => Math.min(w, logo.width)))] : [];
 ---
@@ -18,7 +20,7 @@ const srcWidths = logo ? [...new Set(widths.map((w) => Math.min(w, logo.width)))
   logo ? (
     <Picture
       src={logo}
-      alt="Bless Cuts barbershop, засновано у 2023 році"
+      alt={alt}
       widths={srcWidths}
       sizes={sizes}
       formats={["avif", "webp"]}
