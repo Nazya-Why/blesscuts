@@ -19,7 +19,7 @@ import { barbers } from "../data/barbers";
 import { minPrice } from "../data/services";
 import { heroPoster } from "../lib/hero-media";
 
-// На телефонах найбільший елемент першого екрана — обкладинка відео: вантажимо її першою
+// Найбільший елемент першого екрана — обкладинка відео: вантажимо її першою
 const poster = await heroPoster();
 
 const title = "Bless Cuts — барбершоп у центрі Львова | Чоловіча стрижка";
@@ -27,7 +27,7 @@ const description = `Барбершоп Bless Cuts у центрі Львова,
 ---
 
 <Base title={title} description={description}>
-  {poster && <link slot="head" rel="preload" as="image" href={poster.src} fetchpriority="high" media="(orientation: portrait)" />}
+  {poster && <link slot="head" rel="preload" as="image" href={poster.src} fetchpriority="high" />}
   <a href="#main" class="skip-link">Перейти до вмісту</a>
 
   <div class="page" id="top">

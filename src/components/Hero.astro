@@ -1,11 +1,7 @@
 ---
-// Перший екран: фон на весь екран із затемненням, поверх — білий текст і кнопки.
-// Портретні екрани (телефони): фоном вертикальне відео залу (src/assets/video/hero.mp4).
-// Альбомні (ноутбуки): фоном широке фото залу (hero-wide), а відео — вертикальна картка праворуч.
-import type { ImageMetadata } from "astro";
-import { getImage } from "astro:assets";
+// Перший екран: фоном на весь екран вертикальне відео залу (src/assets/video/hero.mp4) під затемненням,
+// поверх — білий текст і кнопки. На широких екранах відео заповнює ширину й обрізається зверху та знизу.
 import Icon from "./Icon.astro";
-import { asset } from "../lib/images";
 import { heroPoster } from "../lib/hero-media";
 // ?url — Vite кладе файл у /_astro/ з хешем вмісту в назві: нова версія відео не застрягне в кеші телефона
 import heroVideo from "../assets/video/hero.mp4?url";
@@ -13,34 +9,10 @@ import { contacts, external, reviewsLabel } from "../data/contacts";
 import { barbers } from "../data/barbers";
 import { minPrice } from "../data/services";
 
-const wide = asset("hero-wide");
-
-async function variants(image: ImageMetadata, widths: number[]) {
-  const fit = widths.filter((w) => w <= image.width);
-  const [avif, webp, jpg] = await Promise.all(
-    (["avif", "webp", "jpg"] as const).map((format) => getImage({ src: image, widths: fit, format })),
-  );
-  return { avif: avif.srcSet.attribute, webp: webp.srcSet.attribute, jpg };
-}
-
-const wideSet = wide ? await variants(wide, [960, 1280, 1600]) : null;
 const poster = await heroPoster();
-// На портретних екранах <img> лишається порожнім пікселем — широке фото там не завантажується
-const blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 ---
 
 <section class="hero on-black" data-hero aria-labelledby="hero-title">
-  {
-    wideSet && (
-      <picture class="hero__media">
-        <source media="(orientation: landscape)" type="image/avif" srcset={wideSet.avif} sizes="100vw" />
-        <source media="(orientation: landscape)" type="image/webp" srcset={wideSet.webp} sizes="100vw" />
-        <source media="(orientation: landscape)" srcset={wideSet.jpg.srcSet.attribute} sizes="100vw" />
-        <img src={blank} alt="" width={wide?.width} height={wide?.height} fetchpriority="high" decoding="async" />
-      </picture>
-    )
-  }
-
   <!-- Відео без звуку; запускає скрипт після завантаження сторінки (не при «зменшити рух» чи економії трафіку) -->
   <video
     class="hero__video"
@@ -102,53 +74,18 @@ const blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAA
     background: #000;
     color: #fff;
   }
-  .hero__media,
   .hero__video,
   .hero__scrim {
     position: absolute;
     inset: 0;
     z-index: -1;
   }
-  .hero__media {
-    display: none;
-  }
-  .hero__media img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    animation: hero-zoom 1.8s var(--ease) both;
-  }
-  /* Портрет: відео — фон на весь екран */
+  /* Відео — фон на весь екран на будь-якому пристрої */
   .hero__video {
     width: 100%;
     height: 100%;
     object-fit: cover;
     background: #000;
-  }
-
-  /* Альбом: фоном фото; відео ховається або стає вертикальною карткою праворуч */
-  @media (orientation: landscape) {
-    .hero__media {
-      display: block;
-    }
-    .hero__video {
-      display: none;
-    }
-  }
-  @media (orientation: landscape) and (min-width: 1024px) and (min-height: 640px) {
-    .hero__video {
-      display: block;
-      inset: auto;
-      right: max(24px, calc((100% - 1200px) / 2));
-      bottom: 88px;
-      z-index: 1;
-      width: auto;
-      height: min(62vh, 560px);
-      aspect-ratio: 9 / 16;
-      border: 1px solid rgb(255 255 255 / 0.18);
-      border-radius: 28px;
-      box-shadow: 0 30px 80px rgb(0 0 0 / 0.5);
-    }
   }
   /* Рівномірне затемнення (без градієнтів): білий текст читається навіть над світлими ділянками */
   .hero__scrim {
@@ -225,11 +162,6 @@ const blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAA
     }
   }
 
-  @keyframes hero-zoom {
-    from {
-      transform: scale(1.06);
-    }
-  }
   @keyframes dot-blink {
     50% {
       background-color: rgb(48 209 88 / 0.45);
@@ -252,25 +184,21 @@ const blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAA
   import "../scripts/open-status";
 
   // Відео першого екрана: вантажимо лише після сторінки (спершу видно обкладинку),
-  // граємо, тільки коли воно показане й видиме; поважаємо «зменшити рух» і економію трафіку.
+  // граємо, тільки коли воно в полі зору; поважаємо «зменшити рух» і економію трафіку.
   const video = document.querySelector<HTMLVideoElement>("[data-hero-video]");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
+  const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } })
+    .connection;
+  const lowData = connection?.saveData === true || /(^|-)2g$/.test(connection?.effectiveType ?? "");
 
-  if (video && !saveData) {
+  if (video && !lowData) {
     video.muted = true;
     let onScreen = true;
     let pageLoaded = false;
 
-    // Ті самі умови, що й у CSS: фон на портретних екранах або картка на великих альбомних
-    const shownQuery = window.matchMedia(
-      "(orientation: portrait), (orientation: landscape) and (min-width: 1024px) and (min-height: 640px)",
-    );
-
     const sync = () => {
       if (!pageLoaded) return;
-      const shown = shownQuery.matches;
-      if (shown && onScreen && !reducedMotion.matches) {
+      if (onScreen && !reducedMotion.matches) {
         if (video.preload !== "auto") video.preload = "auto";
         video.play().catch(() => {});
       } else if (!video.paused) {
@@ -283,11 +211,18 @@ const blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAA
       sync();
     }).observe(video);
     reducedMotion.addEventListener("change", sync);
-    shownQuery.addEventListener("change", sync);
 
+    // Запуск декодера відео — важка операція; відкладаємо її, поки сторінка «оживає».
+    // До старту видно обкладинку — той самий перший кадр, тож затримки не помітно.
     const start = () => {
-      pageLoaded = true;
-      sync();
+      const go = () => {
+        pageLoaded = true;
+        sync();
+      };
+      setTimeout(() => {
+        if ("requestIdleCallback" in window) requestIdleCallback(go, { timeout: 2000 });
+        else go();
+      }, 1200);
     };
     if (document.readyState === "complete") start();
     else addEventListener("load", start, { once: true });
