@@ -1,6 +1,7 @@
 // «Зараз відкрито · до 20:00» / «Зараз зачинено · відкриємося о 10:00» за часом Львова.
 // Працює для всіх елементів [data-open-status data-opens="10:00" data-closes="20:00"]
 // з дочірнім [data-status-text]; стан пише в data-state="open|closed".
+// data-format="short" — коротко для пігулки на першому екрані: «Відкрито до 20:00» / «Відкриємось о 10:00».
 const minutes = (hhmm: string) => {
   const [h, m] = hhmm.split(":").map(Number);
   return h * 60 + m;
@@ -28,7 +29,12 @@ if (elements.length) {
       const open = now >= minutes(opens) && now < minutes(closes);
       el.dataset.state = open ? "open" : "closed";
       const text = el.querySelector<HTMLElement>("[data-status-text]");
-      if (text) text.textContent = open ? `Зараз відкрито · до ${closes}` : `Зараз зачинено · відкриємося о ${opens}`;
+      if (!text) continue;
+      if (el.dataset.format === "short") {
+        text.textContent = open ? `Відкрито до ${closes}` : `Відкриємось о ${opens}`;
+      } else {
+        text.textContent = open ? `Зараз відкрито · до ${closes}` : `Зараз зачинено · відкриємося о ${opens}`;
+      }
     }
   };
   update();

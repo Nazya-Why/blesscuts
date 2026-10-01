@@ -39,10 +39,23 @@ const [poster, posterWide] = await Promise.all([heroPoster(), heroPosterWide()])
   <div class="hero__scrim" aria-hidden="true"></div>
 
   <div class="wrap hero__content">
-    <a href={contacts.mapsUrl} {...external} class="hero__badge">
-      <Icon name="star" size={15} filled />
-      <span><span class="font-semibold">{contacts.rating}</span> · {reviewsLabel} відгуків у Google</span>
-    </a>
+    <!-- Дві пігулки: рейтинг і живий статус роботи з маячком -->
+    <div class="flex flex-wrap gap-2">
+      <a href={contacts.mapsUrl} {...external} class="hero__badge">
+        <Icon name="star" size={15} filled />
+        <span><span class="font-semibold">{contacts.rating}</span> · {reviewsLabel} відгуків у Google</span>
+      </a>
+      <p
+        class="hero__badge hero__status"
+        data-open-status
+        data-format="short"
+        data-opens={contacts.opens}
+        data-closes={contacts.closes}
+      >
+        <span class="hero__dot" aria-hidden="true"></span>
+        <span data-status-text>Щодня {contacts.opens}–{contacts.closes}</span>
+      </p>
+    </div>
 
     <h1 id="hero-title" class="h1 mt-5 max-w-[14ch] md:mt-6">Барбершоп у&nbsp;центрі Львова.</h1>
 
@@ -54,17 +67,6 @@ const [poster, posterWide] = await Promise.all([heroPoster(), heroPosterWide()])
     <div class="mt-7 flex flex-wrap gap-3 md:mt-9" data-hero-cta>
       <a href={contacts.bookingUrl} {...external} class="btn btn-light btn-lg">Записатися онлайн</a>
       <a href="#services" class="btn btn-glass btn-lg">Ціни</a>
-    </div>
-
-    <div class="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-[15px] text-white md:mt-6">
-      <p class="hero__status" data-open-status data-opens={contacts.opens} data-closes={contacts.closes}>
-        <span class="hero__dot" aria-hidden="true"></span>
-        <span data-status-text>Щодня {contacts.opens} — {contacts.closes}</span>
-      </p>
-      <p class="flex items-center gap-2">
-        <Icon name="check" size={18} class="shrink-0" />
-        Без дзвінків — запис онлайн
-      </p>
     </div>
   </div>
 </section>
@@ -124,23 +126,21 @@ const [poster, posterWide] = await Promise.all([heroPoster(), heroPosterWide()])
     transition: transform 0.3s var(--ease);
   }
   @media (hover: hover) {
-    .hero__badge:hover {
+    a.hero__badge:hover {
       transform: scale(1.02);
     }
   }
 
-  /* Маячок: зелений і блимає, коли відкрито; помаранчевий, коли зачинено */
+  /* Маячок у пігулці статусу: зелений і блимає, коли відкрито; помаранчевий, коли зачинено */
   .hero__status {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 500;
+    gap: 9px;
+    padding-left: 13px;
   }
   .hero__dot {
     position: relative;
     flex: none;
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 999px;
     background: rgb(255 255 255 / 0.7);
   }
