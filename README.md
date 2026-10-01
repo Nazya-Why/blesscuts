@@ -50,6 +50,12 @@ npm run check      # перевірка типів
 ffmpeg -i нове.mp4 -an -c:v libx264 -pix_fmt yuv420p -preset slow -crf 27 -movflags +faststart public/video/hero.mp4
 ```
 
+Щоб повтор був без помітного шва, перша секунда плавно накладається на останню (приклад для відео на 10 с: `PTS+8` = 10 − 2 × 1 с):
+
+```bash
+ffmpeg -i нове.mp4 -filter_complex "[0:v]split[a][b];[a]trim=0:1,setpts=PTS-STARTPTS,format=yuva420p,fade=t=in:st=0:d=1:alpha=1,setpts=PTS+8/TB[head];[b]trim=start=1:end=10,setpts=PTS-STARTPTS[tail];[tail][head]overlay=eof_action=pass,format=yuv420p[out]" -map "[out]" -an -c:v libx264 -preset slow -crf 27 -movflags +faststart public/video/hero.mp4
+```
+
 ```bash
 ffmpeg -i нове.mp4 -frames:v 1 -q:v 2 src/assets/hero-video.jpg
 ```
