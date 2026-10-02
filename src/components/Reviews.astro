@@ -1,6 +1,7 @@
 ---
 import Icon from "./Icon.astro";
 import { contacts, external, reviewsLabel } from "../data/contacts";
+import { reviews } from "../data/reviews";
 ---
 
 <section id="reviews" class="section bg-section" aria-labelledby="reviews-title">
@@ -21,10 +22,27 @@ import { contacts, external, reviewsLabel } from "../data/contacts";
         <span class="sr-only">Оцінка {contacts.rating} з 5 · </span>{reviewsLabel} відгуків у Google.
       </h2>
       <p class="mx-auto mt-3 max-w-[30rem] text-[17px] leading-normal text-ink-3">
-        Середня оцінка від клієнтів, які вже були в Bless Cuts. Прочитай, що вони пишуть, — і переконайся сам.
+        Середня оцінка від клієнтів, які вже були в Bless Cuts. Ось що вони пишуть:
       </p>
 
-      <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+      <!-- Справжні відгуки з Google Maps (src/data/reviews.ts) -->
+      <ul class="mt-8 grid gap-3 text-left md:mt-10 md:grid-cols-3 md:gap-4">
+        {
+          reviews.map((r) => (
+            <li class="review">
+              <div class="flex gap-0.5 text-ink" aria-label="5 з 5">
+                {Array.from({ length: 5 }, () => <Icon name="star" size={16} filled />)}
+              </div>
+              <blockquote class="mt-3 flex-1 text-[15px] leading-normal text-ink-3">«{r.text}»</blockquote>
+              <p class="mt-4 text-[14px] text-ink-2">
+                <span class="font-semibold text-ink">{r.name}</span> · відгук у Google
+              </p>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row md:mt-10">
         <a href={contacts.bookingUrl} {...external} class="btn btn-primary btn-lg">Записатися онлайн</a>
         <a href={contacts.mapsUrl} {...external} class="btn btn-secondary btn-lg">
           Читати відгуки <Icon name="arrow-up-right" size={18} />
@@ -42,6 +60,13 @@ import { contacts, external, reviewsLabel } from "../data/contacts";
     text-align: center;
   }
   .reviews .btn-secondary {
+    background: var(--section);
+  }
+  .review {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border-radius: 22px;
     background: var(--section);
   }
   @media (min-width: 768px) {
