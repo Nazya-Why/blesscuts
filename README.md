@@ -73,7 +73,7 @@ ffmpeg -i src/assets/video/hero-wide.mp4 -frames:v 1 -q:v 2 src/assets/hero-vide
 
 ## Попередній перегляд на GitHub Pages
 
-Поточна версія: https://nazya-why.github.io/blesscuts/
+Поточна версія: https://nazya-why.github.io/blesscuts-lviv/
 
 Опублікувати зміни: закомітити їх і виконати
 
