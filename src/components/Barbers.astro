@@ -56,6 +56,7 @@ const cards = barbers.map((b) => {
               <div class="flex flex-1 flex-col px-1.5 pt-3.5 pb-1 md:px-2 md:pt-5">
                 <p class="text-[13px] leading-snug font-medium text-ink-2 md:text-[14px]">{b.level}</p>
                 <h3 class="mt-1 text-[19px] leading-tight font-semibold tracking-[-0.02em] md:text-[22px]">{b.name}</h3>
+                <p class="mt-1.5 text-[14px] leading-snug text-ink-3 md:text-[15px]">{b.quote}</p>
                 <ul class="mt-2.5 flex flex-wrap gap-1.5" aria-label="Сильні сторони">
                   {b.focus.map((f) => (
                     <li class="chip">{f}</li>
