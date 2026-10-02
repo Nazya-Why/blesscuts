@@ -19,8 +19,14 @@ import { contacts, external } from "../data/contacts";
           <li class="perk"><Icon name="scissors" size={18} class="shrink-0" /> Будь-яка послуга</li>
         </ul>
 
-        <a href={contacts.instagramUrl} {...external} class="btn btn-light btn-lg mt-8">Замовити сертифікат</a>
-        <p class="mt-3 text-[14px] text-[#86868b]">Замовлення — в Instagram {contacts.instagram}</p>
+        <a href={contacts.instagramDmUrl} {...external} class="btn btn-light btn-lg mt-8">
+          <Icon name="instagram" size={20} class="shrink-0" />
+          Купити сертифікат
+        </a>
+        <p class="mt-3 text-[14px] text-[#a1a1a6]">
+          Відкриється чат з нами в Instagram. Або подзвони:
+          <a href={contacts.phoneHref} class="whitespace-nowrap text-white underline decoration-white/35 underline-offset-4">{contacts.phone}</a>
+        </p>
       </div>
 
       <!-- Зображення самого сертифіката: декор, тому прихований від скрінрідерів -->

@@ -4,6 +4,8 @@ export const contacts = {
   phoneHref: "tel:+380975444454",
   instagram: "@blesscuts.barbershop",
   instagramUrl: "https://www.instagram.com/blesscuts.barbershop/",
+  /** Одразу чат (Direct) з барбершопом в Instagram — для замовлення сертифіката */
+  instagramDmUrl: "https://ig.me/m/blesscuts.barbershop",
   tiktok: "@blesscuts.barbers",
   tiktokUrl: "https://www.tiktok.com/@blesscuts.barbers",
   /** 3D-огляд барбершопу в Google Maps (посилання з біо Instagram) */
